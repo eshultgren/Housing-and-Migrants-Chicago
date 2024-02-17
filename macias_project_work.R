@@ -13,7 +13,7 @@ google_api_key <- "AIzaSyAmWiRl8MXntcSV-YrTDc7DrgmjyPz7gzg"
 register_google(key = google_api_key)
 ############### Google Map Layer End
 
-path <- "/Users/josemacias/Desktop/Harris Work/Winter 2024/R Programming 2"
+path <- "/Users/josemacias/Documents/GitHub/Housing-and-Migrants-Chicago"
 setwd(path)
 
 ############### API datasets
@@ -59,28 +59,32 @@ af_house_dev <-
   
 # Chi Town shape
 
-chi_town <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") %>%
+chi_town <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
   select(community, geometry)
 ############### API Datasets End
 ############### Spatial Work Begin
 # Spatial Merges with Chi Shape
+# Mental Health shape
 sf_clean_mental_health <- 
   clean_mental_health |>
   st_as_sf(coords = c("latitude","longitude"),
                       crs = st_crs(chi_town)) |>
   st_join(chi_town) |>
   filter(!is.na(community))
-############### NOT FINISHED FEB 3 2024
+# Afordable housing shape
 sf_af_house_dev <- 
   af_house_dev |>
   st_as_sf(coords = c("latitude","longitude"),
            crs = 4326) 
 
-chi_town |>
-ggplot() +
-  geom_sf() +
-  geom_sf(data = sf_af_house_dev, aes(size = units), alpha = .3) 
-############### NOT FINISHED FEB 3 2024
+data20 <- read_csv(file.path(path, "overdose counts 2020.csv"))
+data21 <- read_csv(file.path(path, "overdose counts 2021.csv"))
+data22 <- read_csv(file.path(path, "overdose counts 2022.csv"))
+
+
+
+
+
 # Census Data
 options(timeout = 999)
 
