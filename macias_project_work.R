@@ -79,10 +79,8 @@ sf_af_house_dev <-
 chi_town |>
 ggplot() +
   geom_sf() +
-  geom_sf(data = sf_af_house_dev, aes(size = log(units))) 
+  geom_sf(data = sf_af_house_dev, aes(size = units), alpha = .3) 
 ############### NOT FINISHED FEB 3 2024
-
-
 # Census Data
 options(timeout = 999)
 
