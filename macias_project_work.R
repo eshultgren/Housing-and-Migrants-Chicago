@@ -58,9 +58,9 @@ af_house_dev <-
   rename(latitude=proper_latitude,longitude= proper_longitude)
   
 # Chi Town shape
-chi_town <- 
-  st_read("/Users/josemacias/Desktop/Harris Work/Winter 2024/R Programming 2/Boundaries - Community Areas (current)/geo_export_accd2cf3-6c33-4b26-bcb3-14fe2864a133.shp") |>
-  select(community,geometry)
+
+chi_town <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") %>%
+  select(community, geometry)
 ############### API Datasets End
 ############### Spatial Work Begin
 # Spatial Merges with Chi Shape
