@@ -135,7 +135,7 @@ sf_mental_health_census_aggregate_census_tracts <-
 sf_af_house_dev <- 
   af_house_dev |>
   st_as_sf(coords = c("latitude","longitude"),
-           crs = 4326)|>
+           crs = st_crs(chi_town))|>
   st_join(chi_town) |>
   filter(!is.na(community)) |>
   select(-community_area) |>
@@ -144,7 +144,7 @@ sf_af_house_dev <-
 sf_af_house_dev_tract <- 
   af_house_dev |>
   st_as_sf(coords = c("latitude","longitude"),
-           crs = 4326) |>
+           crs = st_crs(chi_town)) |>
   st_join(filtered_census_tracts) |>
   select(7:13,1:6)
 # Counts of AF by Comm Area
@@ -286,49 +286,3 @@ chi_town |>
 
 ggsave("chi_town_health.png",plot = last_plot(), width = 10, height = 6, bg = "white", dpi = 500)
 ############### Chi Mental Health Map End
-############### Chi Affordable Housing Development Map Begin
-chi_town |>
-  ggplot() +
-  annotation_custom(raster_map, 
-                    xmin = xmin, 
-                    xmax = xmax, 
-                    ymin = ymin,
-                    ymax = ymax) +
-  geom_sf(data = filtered_census_tracts, aes(fill = black_pop), alpha = .75) +
-  scale_fill_viridis_c(labels = scales::comma_format()) +
-  geom_sf(color = "gold", fill = NA, linewidth = .2) +
-  geom_point(data = sf_clean_mental_health, 
-             aes(x =backup_lat, 
-                 y = backup_long, color =other_languages),
-             shape = 6,
-             alpha = .8,
-             size = .7) +
-  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Paired"))(colourCount)) + 
-  geom_sf_label(data = chi_town, aes(label = community),
-                # face = "bold",
-                size = 1, color = "gold", fill = "black", 
-                label.size = 0.1,
-                label.padding = unit(0.15, "lines"),
-                alpha = .3) +
-  labs(title = "Diversity of Language Services in Chicago's Mental Health Resources",
-       subtitle = "Spatial Distribution and Language Diversity of Mental Health Facilities",
-       color = "Languages Served",
-       fill = "Black Population",
-       caption = "Sources: Chicago Open Data Portal, 2022 U.S. American Comunity Census (ACS) 5-Year Estimates") +
-  theme_map()+
-  guides(
-    color = guide_legend(
-      title.position = "top", 
-      title.theme = element_text(size = 10,face = "bold"), 
-      legend.text = element_text(size = 9),
-      ncol = 2, byrow = TRUE, keywidth = 1, 
-      keyheight = 1)) +
-  theme(
-    legend.position = "right",
-    plot.title = element_text(size = 14, face = "bold"),
-    plot.subtitle = element_text(size = 12),
-    legend.text = element_text(size = 9),
-    legend.title = element_text(size = 10, face = "bold"),
-    plot.caption = element_text(size = 5, face = "bold"),
-    # plot.caption.position = "panel"
-  ) 
