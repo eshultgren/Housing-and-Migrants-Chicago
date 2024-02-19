@@ -129,7 +129,6 @@ counts_of_mental_resources_tract <-
 
 sf_mental_health_census_aggregate_census_tracts <-
   left_join(filtered_census_tracts,counts_of_mental_resources_tract, join_by(GEOID))
-
 # 2 Affordable housing shape
 # The lat and long of Affordable housing according to Comm Area
 sf_af_house_dev <- 
