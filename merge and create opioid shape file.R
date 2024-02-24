@@ -25,6 +25,8 @@ age_zip <- read_csv(file.path(path, "acs_med_age_zip.csv"))
 
 edu_zip <- read_csv(file.path(path, "acs_education_zip.csv"))
 
+pop_22 <- read_csv(file.path(path, "population zip 2022.csv"))
+
 data20 <- read_csv(file.path(path, "overdose counts 2020.csv"))
 data21 <- read_csv(file.path(path, "overdose counts 2021.csv"))
 data22 <- read_csv(file.path(path, "overdose counts 2022.csv"))
@@ -45,6 +47,14 @@ opioid_shape <- merge(zip_chi_shape, opioid_data, by = "zip")
 opioid_shape <- merge(opioid_shape, age_zip, by = "zip")
 ##add education
 opioid_shape <- merge(opioid_shape, edu_zip, by = "zip")
+##add population
+opioid_shape <- merge(opioid_shape, pop_22, by = "zip")
+
+opioid_shape <- opioid_shape %>% 
+  mutate(overdose_rate_22 = Overdose_Count_by_Zip_2022/pop_10000)
+
+###This is the opioid file with all the info in it!###
+
 
 ##would be great if we could save this mereged file
 st_write(opioid_shape,
@@ -86,7 +96,7 @@ tract_shape <- st_read(file.path(path,
 high_dense_shape_22 <- merge(tract_shape, unhoused_dense_22, by = "GEOID")
 high_dense_shape_21 <- merge(tract_shape, unhoused_dense_21, by = "GEOID")
 
-##Plot 2022
+##Plot 2022 Count
 opioid_unhoused_2022 <- ggplot() +
   geom_sf(data = zip_chi_shape) +
   geom_sf(data = opioid_shape, aes(fill = Overdose_Count_by_Zip_2022), color = NA) +
@@ -106,6 +116,29 @@ opioid_unhoused_2022 <- ggplot() +
   )
 
 print(opioid_unhoused_2022)
+
+
+##Plot 2022 RATE
+opioid_rate_2022 <- ggplot() +
+  geom_sf(data = zip_chi_shape) +
+  geom_sf(data = opioid_shape, aes(fill = overdose_rate_22), color = NA) +
+  geom_sf(data = high_dense_shape_22, fill = "darkgoldenrod2", fill = NA) +
+  labs(title = "Overdose Rate Per 10,000 Ppl (Nonfatal and Fatal) by Zip in 2022",
+       subtitle = "Yellow Indicates High-Density Populations of Unhoused People",
+       caption = "Data: IL Dept of Public Health, ACS") +
+  scale_fill_distiller(name="Opioid Overdose Count", palette = "BuPu", trans = "reverse", 
+                       breaks = pretty_breaks(n = 5)) +
+  theme_map() +
+  theme(
+    plot.title = element_text(hjust = 0, size= 13),
+    plot.caption = element_text(face = "italic", size = 8),
+    plot.subtitle = element_text(size = 10, hjust = 0),
+    legend.title = element_text(size = 12),
+    legend.title.align = 0.5
+  )
+
+print(opioid_rate_2022)
+
 
 ##Plot 2021
 opioid_unhoused_2021 <- ggplot() +
