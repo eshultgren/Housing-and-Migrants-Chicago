@@ -215,21 +215,23 @@ edu_opi_plot <- ggdraw() +
 
 print(edu_opi_plot)
 
-##
+##BI-CLASS ##
 ##age and opioids
+
+##define variables on legend
 data <- bi_class(opioid_shape_22, x = Overdose_Count_by_Zip_2022, y = Median_age, style = "quantile", dim = 3)
 
 # plot
 age_opi_plot <- ggplot() +
   geom_sf(data = opioid_shape_22) +
-  geom_sf(data = data, mapping = aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
+  geom_sf(data = data, mapping = aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) + #show legend= FALSE
   bi_scale_fill(pal = "GrPink", dim = 3) +
   labs(
     title = "Overdose Count and Median Age",
     subtitle = "By Zip 2022",
     caption = "Data: IDPH, ACS"
   ) +
-  bi_theme() +
+  bi_theme() + ##Bi-Theme
   theme(
     plot.title = element_text(hjust = 0.1, size= 15),
     plot.caption = element_text(face = "italic", size = 8),
@@ -237,14 +239,14 @@ age_opi_plot <- ggplot() +
     legend.title = element_text(size = 12)
   )
 
-legend <- bi_legend(pal = "GrPink",
+legend <- bi_legend(pal = "GrPink", #build legend
                     dim = 3,
                     xlab = "+ Overdose Count",
                     ylab = "+ % College Educated",
                     size = 12)
 
 
-age_opi_plot <- ggdraw() +
+age_opi_plot <- ggdraw() + #draw legend next to plot
   draw_plot(age_opi_plot, 0, 0, 1, 1) +
   draw_plot(legend, x= 0.5, y=0.4, 0.4, 0.4)
 
