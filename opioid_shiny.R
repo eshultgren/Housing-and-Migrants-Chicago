@@ -114,51 +114,93 @@ server <- function(input, output) {
 
 
 ##Plot 2022 RATE
-output$plot <- renderPlot({
-  ggplotly(ggplot() +
-  geom_sf(data = zip_chi_shape) +
-  geom_sf(data = filter(opioid_shape_wide, Year == !!sym(input$year)), aes(fill = Overdose_Rate), color = NA) +
-  labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
-       subtitle = paste("By Zip in", !!sym(input$year),".", " ", "Dot Size Correlated W/ High-Density Unhoused Pop.") +
-  scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
-                     breaks = pretty_breaks(n = 5)) +
-  geom_point(data = unhoused_locations, aes(x = Longitude, y = Latitude,
-                                            size = Responses,),
-             color = "#8c62aa",alpha = 0.7) +
-  guides(size = FALSE) +
-  theme_map() +
-  theme(
-    plot.title = element_text(hjust = 0, size= 13),
-    plot.subtitle = element_text(size = 10, hjust = 0), #subtitle not showing
-    legend.title = element_text(size = 12),
-    legend.title.align = 0.5)
-  ))
+output$plot <- 
+  
+  renderPlot({
+    
+    if (input$year == "2022") {
+      
+      # Make the plot
+      p <-   ggplot() +
+                  geom_sf(data = zip_chi_shape) +
+                  geom_sf(data = filter(opioid_shape_wide, Year == "2022"), aes(fill = Overdose_Rate), color = NA) +
+                  labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
+                        subtitle = paste("By Zip in 2022. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
+                  scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
+                                    breaks = pretty_breaks(n = 5)) +
+                  geom_point(data = filter(unhoused_locations, Year == 2023), aes(x = Longitude, y = Latitude,
+                                size = Responses,),
+                                color = "#8c62aa",alpha = 0.7) +
+                  guides(size = FALSE) +
+                  theme_map() +
+                  theme(
+                  plot.title = element_text(hjust = 0, size= 13),
+                  plot.subtitle = element_text(size = 10, hjust = 0), #subtitle not showing
+                  legend.title = element_text(size = 12),
+                  legend.title.align = 0.5)
+                  
+      
+      
+    }
+    
+    if (input$year == "2021") {
 
+      
+      p <-  ggplot() +
+        geom_sf(data = zip_chi_shape) +
+        geom_sf(data = filter(opioid_shape_wide, Year == "2021"), aes(fill = Overdose_Rate), color = NA) +
+        labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
+              subtitle = paste("By Zip in 2021. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
+        scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
+                           breaks = pretty_breaks(n = 5)) +
+        geom_point(data = filter(unhoused_locations, Year == 2022), aes(x = Longitude, y = Latitude,
+                                                                        size = Responses,),
+                   color = "#8c62aa",alpha = 0.7) +
+        guides(size = FALSE) +
+        theme_map() +
+        theme(
+          plot.title = element_text(hjust = 0, size= 13),
+          plot.subtitle = element_text(size = 10, hjust = 0), #subtitle not showing
+          legend.title = element_text(size = 12),
+          legend.title.align = 0.5)
+      
+ 
+    }
+    
+    if (input$year == "2020") {
+      
+      
+      p <-  ggplot() +
+        geom_sf(data = zip_chi_shape) +
+        geom_sf(data = filter(opioid_shape_wide, Year == "2020"), aes(fill = Overdose_Rate), color = NA) +
+        labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
+             subtitle = paste("By Zip in 2020. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
+        scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
+                           breaks = pretty_breaks(n = 5)) +
+        geom_point(data = filter(unhoused_locations, Year == 2022), aes(x = Longitude, y = Latitude,
+                                                                        size = Responses,),
+                   color = "#8c62aa",alpha = 0.7) +
+        guides(size = FALSE) +
+        theme_map() +
+        theme(
+          plot.title = element_text(hjust = 0, size= 13),
+          plot.subtitle = element_text(size = 10, hjust = 0), #subtitle not showing
+          legend.title = element_text(size = 12),
+          legend.title.align = 0.5)
+      
+    }
+    
+    p
+    
+  
 })
-
-
-
-
+  
 }
-
+  
+  
+  
 shinyApp(ui = ui, server = server)
 
 
 
-            ggplot() +
-             geom_sf(data = zip_chi_shape) +
-             geom_sf(data = filter(opioid_shape_wide, Year == "2020"), aes(fill = Overdose_Rate), color = NA) +
-             labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)")+
-                 # subtitle = paste("By Zip in", !!sym(input$year),".", " ", "Dot Size Correlated W/ High-Density Unhoused Pop.") +
-                    scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
-                                       breaks = pretty_breaks(n = 5)) +
-                    geom_point(data = filter(unhoused_locations, Year == 2022), aes(x = Longitude, y = Latitude,
-                                                              size = Responses,),
-                               color = "#8c62aa",alpha = 0.7) +
-                    guides(size = FALSE) +
-                    theme_map() +
-                    theme(
-                      plot.title = element_text(hjust = 0, size= 13),
-                      plot.subtitle = element_text(size = 10, hjust = 0), #subtitle not showing
-                      legend.title = element_text(size = 12),
-                      legend.title.align = 0.5)
+       
