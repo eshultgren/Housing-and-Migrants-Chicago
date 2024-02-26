@@ -98,6 +98,9 @@ unhoused_locations_df <- data.frame(
 unhoused_locations <- st_as_sf(unhoused_locations_df,
                                coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
 
+writeOGR(unhoused_locations, dsn = '.', layer = 'poly', driver = "ESRI Shapefile")
+
+
 ##
 # Define color palette
 bvColors <- c("#be64ac", "#8c62aa", "#3b4994", "#dfb0d6", "#a5add3", "#5698b9", "#e8e8e8", "#ace4e4", "#5ac8c8")
