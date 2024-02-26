@@ -61,7 +61,7 @@ ggplot() +
   geom_point(data = mh_clinics_sf, aes(x = st_coordinates(geometry)[, 1], y = st_coordinates(geometry)[, 2], size = Num_Clinics), color = 'red', alpha = 0.7, guide = "legend") +
   ggtitle('Mental Health Clinics in Chicago by Community Area') +
   theme_minimal() +
-  guides(size = guide_legend(title = "Number of Clinics"))
+  guides(size = guide_legend(title = "Number of MH Clinics"))
 
 # Standardize coordinate reference systems across sfs before joining 
 st_crs(chi_comm_area)
@@ -83,7 +83,14 @@ equity_zone_base_map <- ggplot(data = unique(joined_data)) +
 gg <- ggplot(data = unique(joined_data)) +
   geom_sf(aes(fill = Equity.Zone), alpha = 0.7)  
 
-gg
+gg1 <- gg +
+  geom_sf(data = mh_clinics_sf, aes(fill = NULL), color = 'red', size = 1, alpha = 0.7) +
+  geom_point(data = mh_clinics_sf, aes(x = st_coordinates(geometry)[, 1], y = st_coordinates(geometry)[, 2], size = Num_Clinics), color = 'red', alpha = 0.7, guide = "legend") +
+  ggtitle('Mental Health Clinics in Chicago by Community Area') +
+  theme_minimal() +
+  guides(size = guide_legend(title = "Number of MH Clinics"))
+
+gg1
 
 # Aggregate number of grocery stores by Community Area
 grocery_count <- grocery_stores_sf %>%
