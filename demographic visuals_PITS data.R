@@ -56,6 +56,7 @@ if (!identical(st_crs(unhoused_locations), st_crs(chi_comm_area))) {
 joined_data <- st_join(unhoused_locations, chi_comm_area)
 
 # Plot distribution of unhoused population 
+
 unhoused_location_map <- ggplot() +
   geom_sf(data = chi_comm_area, fill = "white", color = "black", size = 0.5) +
   geom_sf(data = joined_data, aes(size = Responses, color = Responses), alpha = 0.7) +
@@ -63,7 +64,10 @@ unhoused_location_map <- ggplot() +
   labs(title = "Distribution of Chicago Unhoused Population") +
   theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5)) +  # Center the title
   scale_color_viridis_c(option = "magma") +  # Apply magma color scale
-  labs(caption = "Source: Chicago Point-in-Time County Survey Report, 2023")
+  labs(caption = "Source: Chicago Point-in-Time County Survey Report, 2023") +
+  guides(size = FALSE)  # Remove size legend
+
+unhoused_location_map
 
 # Create a dataframe for reasons for being unhoused 
 unhoused_reason <- data.frame(
