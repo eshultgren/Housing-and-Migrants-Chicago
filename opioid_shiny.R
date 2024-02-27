@@ -11,6 +11,13 @@ library(plotly)
 library(shinyFeedback)
 library(rsconnect)
 library(shinythemes)
+library(jsonlite)
+library(viridis)
+library(cowplot)
+library(ggplot2)
+library(readr)
+library(purrr)
+library(dplyr)
 
 
 ##Data Prep
@@ -19,41 +26,21 @@ path <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Ch
 
 unhoused_locations_df <- read_csv(file.path(path, "unhoused_locations.csv"))
 
-# write.csv# Convert locations dataset into shapefile format
+# Convert locations dataset into shapefile format
 unhoused_locations <- st_as_sf(unhoused_locations_df,
                                coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
 
-data20 <- read_csv(file.path(path, "overdose counts 2020.csv"))
-data21 <- read_csv(file.path(path, "overdose counts 2021.csv"))
-data22 <- read_csv(file.path(path, "overdose counts 2022.csv"))
-
-pop_22 <- read_csv(file.path(path, "population zip_2022.csv"))
-pop_21 <- read_csv(file.path(path, "population_zip_2021.csv"))
-pop_20 <- read_csv(file.path(path, "population_zip_2020.csv"))
-
-opioid_data <- reduce(list(data20, data21, data22), full_join)
-
-opioid_data <- opioid_data %>% 
-  rename(
-    zip = Patient_Zip)
+#merged ACS and IDPH data prior and write.csv to github repository, read in that file for shiny ease
+opioid_data <- read_csv(file.path(path, "opioid_data.csv"))
 
 #download Chicago neighborhood shapefiles
 zip_chi_shape <- st_read("https://data.cityofchicago.org/resource/unjd-c2ca.geojson")
 
+#create opioid shape file
 opioid_shape <- merge(zip_chi_shape, opioid_data, by = "zip")
 
 
-##add population
-opioid_shape <- merge(opioid_shape, pop_22, by = "zip")
-opioid_shape <- merge(opioid_shape, pop_21, by = "zip")
-opioid_shape <- merge(opioid_shape, pop_20, by = "zip")
-
-opioid_shape <- opioid_shape %>% 
-  mutate(overdose_rate_2022 = Overdose_Count_by_Zip_2022/pop_10000_2022,
-         overdose_rate_2021 = Overdose_Count_by_Zip_2021/pop_10000_2021,
-         overdose_rate_2020 = Overdose_Count_by_Zip_2020/pop_10000_2020)
-
-opioid_shape_wide <- opioid_shape %>% 
+opioid_shape_long <- opioid_shape %>% 
   select(zip, geometry, overdose_rate_2022, overdose_rate_2021, overdose_rate_2020) %>% 
   rename(`2022` = overdose_rate_2022,
          `2021` = overdose_rate_2021,
@@ -100,7 +87,7 @@ output$plot <-
       # Make the plot
       p <-   ggplot() +
                   geom_sf(data = zip_chi_shape) +
-                  geom_sf(data = filter(opioid_shape_wide, Year == "2022"), aes(fill = Overdose_Rate), color = NA) +
+                  geom_sf(data = filter(opioid_shape_long, Year == "2022"), aes(fill = Overdose_Rate), color = NA) +
                   labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
                         subtitle = paste("By Zip in 2022. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
                   scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
@@ -125,7 +112,7 @@ output$plot <-
       
       p <-  ggplot() +
         geom_sf(data = zip_chi_shape) +
-        geom_sf(data = filter(opioid_shape_wide, Year == "2021"), aes(fill = Overdose_Rate), color = NA) +
+        geom_sf(data = filter(opioid_shape_long, Year == "2021"), aes(fill = Overdose_Rate), color = NA) +
         labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
               subtitle = paste("By Zip in 2021. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
         scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
@@ -149,7 +136,7 @@ output$plot <-
       
       p <-  ggplot() +
         geom_sf(data = zip_chi_shape) +
-        geom_sf(data = filter(opioid_shape_wide, Year == "2020"), aes(fill = Overdose_Rate), color = NA) +
+        geom_sf(data = filter(opioid_shape_long, Year == "2020"), aes(fill = Overdose_Rate), color = NA) +
         labs(title = "Opioid Overdose Rate (Nonfatal and Fatal Per 10,000 Ppl)",
              subtitle = paste("By Zip in 2020. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
         scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
