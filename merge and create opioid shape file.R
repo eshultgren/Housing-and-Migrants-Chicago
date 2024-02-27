@@ -3,7 +3,6 @@ library(tidyverse)
 library(shiny)
 library(sf)
 library(rnaturalearth)
-library(viridis)
 library(scales)
 library(ggmap)
 library(biscale)
@@ -60,6 +59,9 @@ opioid_shape <- opioid_shape %>%
   mutate(overdose_rate_22 = Overdose_Count_by_Zip_2022/pop_10000_2022,
          overdose_rate_21 = Overdose_Count_by_Zip_2021/pop_10000_2021,
          overdose_rate_20 = Overdose_Count_by_Zip_2020/pop_10000_2020)
+
+##save datafile to folder as csv
+write.csv(opioid_data, "opioid_data.csv")
 
 ###This is the opioid file with all the info in it!###
 
@@ -320,4 +322,3 @@ print(opioid_rate_2020)
 print(opioid_rate_2021)
 
 print(opioid_rate_2022)
-
