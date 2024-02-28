@@ -26,10 +26,10 @@ path <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Ch
 #####opioid data prep####
 # unhoused locations per PITS report 
 
-unhoused_locations_df <- read_csv(file.path(path, "unhoused_locations.csv"))
+unhoused_locations_yrs_df <- read_csv(file.path(path, "unhoused_locations.csv"))
 
 # Convert locations dataset into shapefile format
-unhoused_locations <- st_as_sf(unhoused_locations_df,
+unhoused_locations_yrs <- st_as_sf(unhoused_locations_yrs_df,
                                coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
 
 #merged ACS and IDPH data prior and write.csv to github repository, read in that file for shiny ease
@@ -128,7 +128,7 @@ joined_data <- st_join(joined_data, mh_clinics_sf, join = st_intersects)
 # FIRST MAP: EQUITY ZONES
 # Simple map that shows equity zone distribution 
 equity_zones_plot <- ggplot(data = unique(joined_data)) +
-  geom_sf(aes(fill = Equity.Zone), alpha = 0.7)  
+  geom_sf(aes(fill = `Equity Zone`), alpha = 0.7)  
 
 # equity_zones_plot
 
@@ -147,7 +147,7 @@ grocery_plot <- ggplot(data = unique(plot_data)) +
   scale_fill_gradient(name = "Number of Grocery Stores", low = "#fcfdbf", high = "#842681")
 
 grocery_plot_equity <- grocery_plot +
-  geom_sf(data = equity_zones_sf, aes(color = Equity.Zone), fill = NA, size = 1.5, lwd = 1.2) +
+  geom_sf(data = equity_zones_sf, aes(color = `Equity Zone`), fill = NA, size = 1.5, lwd = 1.2) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink"))+
   #ggtitle("Equity Zones + Grocery Stores")+
   theme(plot.title = element_text(hjust = 0.5))
@@ -178,7 +178,7 @@ mh_clinic_plot <- ggplot(data = unique(plot_data)) +
   scale_fill_gradient(name = "Number of Mental Health Clinics", low = "#fcfdbf", high = "#eb5760")
 
 mh_clinic_plot_equity <- mh_clinic_plot +
-  geom_sf(data = equity_zones_sf, aes(color = Equity.Zone), fill = NA, size = 1.5, lwd = 1.2) +
+  geom_sf(data = equity_zones_sf, aes(color = `Equity Zone`), fill = NA, size = 1.5, lwd = 1.2) +
   scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink"))+
   #ggtitle("Equity Zones + Grocery Stores")+
   theme(plot.title = element_text(hjust = 0.5))
@@ -226,7 +226,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
               
                 tabPanel( #equity mental health grocery
                   
-                  h2("Determinants of Homelessness + Distribution of Unhoused Population in Chicago"),
+                  h2("Determinants of Homelessness and Unhoused Population"),
                   
                   sidebarLayout(
                     sidebarPanel(
@@ -261,7 +261,7 @@ server <- function(input, output) {
                subtitle = paste("By Zip in 2022. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
           scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
                              breaks = pretty_breaks(n = 5)) +
-          geom_point(data = filter(unhoused_locations, Year == 2023), aes(x = Longitude, y = Latitude,
+          geom_point(data = filter(unhoused_locations_yrs, Year == 2023), aes(x = Longitude, y = Latitude,
                                                                           size = Responses,),
                      color = "#8c62aa",alpha = 0.7) +
           guides(size = FALSE) +
@@ -286,7 +286,7 @@ server <- function(input, output) {
                subtitle = paste("By Zip in 2021. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
           scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
                              breaks = pretty_breaks(n = 5)) +
-          geom_point(data = filter(unhoused_locations, Year == 2022), aes(x = Longitude, y = Latitude,
+          geom_point(data = filter(unhoused_locations_yrs, Year == 2022), aes(x = Longitude, y = Latitude,
                                                                           size = Responses,),
                      color = "#8c62aa",alpha = 0.7) +
           guides(size = FALSE) +
@@ -310,7 +310,7 @@ server <- function(input, output) {
                subtitle = paste("By Zip in 2020. Dot Size Correlated W/ High-Density Unhoused Pop.")) +
           scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
                              breaks = pretty_breaks(n = 5)) +
-          geom_point(data = filter(unhoused_locations, Year == 2022), aes(x = Longitude, y = Latitude,
+          geom_point(data = filter(unhoused_locations_yrs, Year == 2022), aes(x = Longitude, y = Latitude,
                                                                           size = Responses,),
                      color = "#8c62aa",alpha = 0.7) +
           guides(size = FALSE) +
@@ -345,7 +345,6 @@ server <- function(input, output) {
       theme(plot.title = element_text(hjust = 0.5, size = 16)) +
       theme(axis.text = element_blank(), axis.title = element_blank())
   })
-  
   
   
 }
