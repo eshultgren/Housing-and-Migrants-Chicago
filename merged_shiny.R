@@ -202,7 +202,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 tabsetPanel( #opioids
                   tabPanel(
                     
-                    h3("Opioid Overdose Rate and Unhoused Populations"),
+                    h4("Opioid Overdose Rate and Unhoused Populations"),
                     
                     sidebarLayout(
                       sidebarPanel(
@@ -221,7 +221,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
               
                 tabPanel( #equity mental health grocery
                   
-                  h3("Determinants of Homelessness and Unhoused Population"),
+                  h4("Determinants of Homelessness and Unhoused Population"),
                   
                   sidebarLayout(
                     sidebarPanel(
@@ -239,7 +239,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 
                 tabPanel( #text analysis
                   
-                  h3("Texas Sentiment and Count Analysis"),
+                  h4("Texas Sentiment and Count Analysis"),
                   
                   sidebarLayout(
                     sidebarPanel(
@@ -258,7 +258,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 
                 tabPanel( #text analysis
                   
-                  h3("New Arrival Count Over Time"),
+                  h4("New Arrival Count Over Time"),
                   
                   sidebarLayout(
                     sidebarPanel(
@@ -432,7 +432,7 @@ server <- function(input, output) {
     )
     
     filtered_data <- texas_graph %>%
-      filter(City %in% input$citySelect)
+      filter(City %in% !!sym(input$citySelect))
     
     
     p2 <- ggplot(filtered_data, aes(x = month_year, y = log(Count), color = City)) +
