@@ -238,7 +238,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                   
                     mainPanel(
                       tabsetPanel(
-                      tabPanel(plotOutput("selected_plot"))
+                      tabPanel(title = "Equity Maps", plotOutput("selected_plot"))
                     ))
                   ))
                 ))
@@ -343,7 +343,9 @@ server <- function(input, output) {
     selected_plot() +
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5, size = 16)) +
-      theme(axis.text = element_blank(), axis.title = element_blank())
+      theme(axis.text = element_blank(), axis.title = element_blank()) +
+      theme(plot.margin = unit(c(2, 0.75, 0.0, 0.0), 
+                               "inches")) 
   })
   
   
