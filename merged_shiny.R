@@ -23,6 +23,8 @@ install.packages("leaflet")
 
 path <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\outside_data\\")
 
+path_texas <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\text files texas\\full data\\")
+
 #####opioid data prep####
 # unhoused locations per PITS report 
 
@@ -179,10 +181,6 @@ mh_clinic_plot_unhoused_pop <- mh_clinic_plot_equity +
 
 
 ##### text analysis #####
-
-
-path_texas <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\text files texas\\full data\\")
-
 
 texas_feelings <- read_csv(file.path(path_texas, "texas_feelings.csv"))
 texas_graph<-read_csv(file.path(path_texas, "texas_graph.csv"))
