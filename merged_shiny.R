@@ -84,19 +84,6 @@ unhoused_locations_df <- data.frame(
 chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
   select(community, geometry)
 
-# Specify zipfile path 
-#zip_path <- "Boundaries - Community Areas (current).zip"
-
-# Create a temporary directory to extract the contents + unzip files 
-#temp_dir <- tempdir()
-#unzip(zip_path, exdir = temp_dir)
-
-# List the files in the temporary directory
-#list.files(temp_dir)
-
-# Read shapefiles into R
-#chi_comm_area <- st_read(temp_dir)
-
 # Extract latitude and longitude
 coordinates <- st_coordinates(chi_comm_area$geometry)
 
@@ -191,6 +178,14 @@ mh_clinic_plot_unhoused_pop <- mh_clinic_plot_equity +
   guides(color = guide_legend(ncol = 2))
 
 
+##### text analysis #####
+
+
+path_texas <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\text files texas\\full data\\")
+
+
+texas_feelings <- read_csv(file.path(path_texas, "texas_feelings.csv"))
+texas_graph<-read_csv(file.path(path_texas, "texas_graph.csv"))
 
 
 ######################################################################################
@@ -207,7 +202,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 tabsetPanel( #opioids
                   tabPanel(
                     
-                    h2("Opioid Overdose Rate and Unhoused Populations"),
+                    h3("Opioid Overdose Rate and Unhoused Populations"),
                     
                     sidebarLayout(
                       sidebarPanel(
@@ -226,7 +221,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
               
                 tabPanel( #equity mental health grocery
                   
-                  h2("Determinants of Homelessness and Unhoused Population"),
+                  h3("Determinants of Homelessness and Unhoused Population"),
                   
                   sidebarLayout(
                     sidebarPanel(
@@ -240,8 +235,47 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                       tabsetPanel(
                       tabPanel(title = "Equity Maps", plotOutput("selected_plot"))
                     ))
+                  )),
+                
+                tabPanel( #text analysis
+                  
+                  h3("Texas Sentiment and Count Analysis"),
+                  
+                  sidebarLayout(
+                    sidebarPanel(
+                      selectInput("statType", "Choose Statistic:", 
+                                  choices = c("Mean" = "mean_afinn", 
+                                              "Median" = "median_affin", 
+                                              "Max" = "max_afinn",
+                                              "Min" = "min_afinn",
+                                              "SD"= "sd_afinn"))
+                    ),
+                    
+                    mainPanel(
+                      tabsetPanel(
+                        tabPanel(title = "Texas Migrant Announcements",  plotlyOutput("sentimentPlot")))
+                      ))),
+                
+                tabPanel( #text analysis
+                  
+                  h3("New Arrival Count Over Time"),
+                  
+                  sidebarLayout(
+                    sidebarPanel(
+                      selectInput("citySelect", "Choose a city:", 
+                                  choices = unique(texas_graph$City), 
+                                  selected = "Chicago", multiple = TRUE)
+                    ),
+                  
+                  mainPanel(
+                    tabsetPanel(
+                      tabPanel(title = "Sentiment Analysis",  plotlyOutput("countPlot")))
                   ))
+                
+                
                 ))
+                
+)
 
 server <- function(input, output) {
   
@@ -343,11 +377,77 @@ server <- function(input, output) {
     selected_plot() +
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5, size = 16)) +
-      theme(axis.text = element_blank(), axis.title = element_blank()) +
-      theme(plot.margin = unit(c(2, 0.75, 0.0, 0.0), 
-                               "inches")) 
+      theme(axis.text = element_blank(), axis.title = element_blank())
   })
   
+  
+  ##Sentiment analysis
+  
+  # For Sentiment Analysis Plot
+  output$sentimentPlot <- renderPlotly({
+    req(input$statType)  # Ensure that statType is not NULL or missing
+    
+    overall_texas_feelings <- texas_feelings %>%
+      mutate(article_id = as.numeric(article_id)) %>% 
+      group_by(article_id) %>%
+      summarise(mean_afinn = mean(afinn, na.rm=TRUE),
+                median_affin = median(afinn, na.rm=TRUE),
+                sd_afinn = sd(afinn, na.rm = TRUE),
+                min_afinn = min(afinn, na.rm = TRUE),
+                max_afinn = max(afinn, na.rm = TRUE)) 
+    
+    # Dynamically select the statistic based on user input
+    sentiment_stat <- overall_texas_feelings %>% 
+      select(article_id, !!sym(input$statType)) %>%
+      arrange(desc(article_id))  
+    
+    # Convert ggplot to plotly for interactivity
+    p3 <- ggplot(sentiment_stat, aes(x = article_id, y = !!sym(input$statType))) +
+      geom_line(color = "#00BFC4", size = 1) +  
+      geom_point(color = "#F8766D", size = 2, alpha = 0.8) +  
+      theme_minimal() +  
+      labs(
+        title = "Overall Sentiment  by  Article across time",
+        subtitle = "Sentiment scores with linear regression line",
+        x = "Article ID",
+        y = "Mean Sentiment Score"
+      ) +
+      theme(
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+      )  
+    
+    ggplotly(p3)
+  })
+  
+  
+  # For Count Over Time Plot
+  output$countPlot <- renderPlotly({
+    
+    # Validate input
+    validate(
+      need(input$citySelect, "Please select at least one city.")
+    )
+    
+    filtered_data <- texas_graph %>%
+      filter(City %in% input$citySelect)
+    
+    
+    p2 <- ggplot(filtered_data, aes(x = month_year, y = log(Count), color = City)) +
+      geom_line() + 
+      geom_point() + 
+      scale_x_date(date_breaks = "1 year", date_labels = "%Y")+
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+      labs(x = "Time", y = "Count", title = "Count Over Time by City") 
+    
+    ggplotly(p2)
+    
+  })
+  
+
   
 }
 
