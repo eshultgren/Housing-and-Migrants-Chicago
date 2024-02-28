@@ -38,6 +38,7 @@ clean_mental_health <-
            other_languages == "Spanish;" ~ "Spanish",
            other_languages == "Spanish;Korean;" ~ "Spanish; Korean",
            other_languages == "Polish; Spanish" ~ "Spanish; Polish",
+           other_languages == "ASL; Spanish" ~ "Spanish; ASL",
            other_languages == "Amharic; Arabic; Bengali; Bosnian; Dari; Farsi; French; Gujarati; Kurdish; Malayalam; Nepali; Pashto; Spanish; Tagalog; Urdu" ~ "Amharic; Arabic; Bengali; Bosnian; Dari;\nFarsi; French; Gujarati; Kurdish;\nMalayalam; Nepali; Pashto; Spanish; Tagalog; Urdu",
            is.na(other_languages) ~ "Information Not Available",
            TRUE ~ other_languages  # Default case
