@@ -18,7 +18,7 @@ library(purrr)
 library(dplyr)
 library(reshape2)
 library(leaflet)
-#install.packages("leaflet")
+install.packages("leaflet")
 #install.packages("reshape2")
 
 path <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\outside_data\\")
@@ -52,153 +52,17 @@ opioid_shape_long <- opioid_shape %>%
 #####################################################
 
 ##### equity grocery mental health data prep #####
+
 # Import equity zone data 
-equity_zones <- read.csv("Healthy_Chicago_Equity_Zones_20240222.csv")
+equity_zones <- read_csv(file.path(path, "Healthy_Chicago_Equity_Zones_20240222.csv"))
 
 # Import grocery store data
-grocery_stores <- read.csv("Map_of_Grocery_Stores_-_2013.csv")
+grocery_stores <- read_csv(file.path(path, "Map_of_Grocery_Stores_-_2013.csv"))
 
 # Import mental health clinic location data 
-mh_clinics <- read.csv("CDPH_Mental_Health_Resources_20240222.csv")
+mh_clinics <- read_csv(file.path(path, "CDPH_Mental_Health_Resources_20240222.csv"))
 
-# Import community area shapefiles 
-####UPDTAED THIS TO NOT USE TEMP_DIR BUT TO CALL IN VIA API####
-
-chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
-  select(community, geometry)
-
-# Specify zipfile path 
-# zip_path <- "Boundaries - Community Areas (current).zip"
-
-# Create a temporary directory to extract the contents + unzip files 
-# temp_dir <- tempdir()
-# unzip(zip_path, exdir = temp_dir)
-
-# List the files in the temporary directory
-# list.files(temp_dir)
-
-# Read shapefiles into R
-# chi_comm_area <- st_read(temp_dir)
-
-# Extract latitude and longitude
-coordinates <- st_coordinates(chi_comm_area$geometry)
-
-# Create new columnswith lat and long
-chi_comm_area$Latitude <- head(coordinates[, "Y"], n = nrow(chi_comm_area))
-chi_comm_area$Longitude <- head(coordinates[, "X"], n = nrow(chi_comm_area))
-
-# Convert all three dfs to shapefile format to support spatial join 
-equity_zones_sf <- st_as_sf(equity_zones, wkt = "Geometry")
-grocery_stores_sf <- st_as_sf(grocery_stores, coords = c("LONGITUDE", "LATITUDE"))
-
-# Extract lat and long from mh_clinics sf as intermediate step
-mh_clinics$Longitude <- as.numeric(gsub("POINT \\((.*?) .*", "\\1", mh_clinics$Location))
-mh_clinics$Latitude <- as.numeric(gsub("POINT \\(.*? (.*?)\\)", "\\1", mh_clinics$Location))
-mh_clinics_sf <- st_as_sf(mh_clinics, coords = c("Longitude", "Latitude"))
-
-# Add a new column with the count of clinics per ZIP code
-mh_clinics_sf <- mh_clinics_sf %>%
-  group_by(ZIP) %>%
-  mutate(Num_Clinics = n())
-
-ggplot() +
-  geom_sf(data = mh_clinics_sf, aes(fill = NULL), color = 'red', size = 1, alpha = 0.7) +
-  geom_point(data = mh_clinics_sf, aes(x = st_coordinates(geometry)[, 1], y = st_coordinates(geometry)[, 2], size = Num_Clinics), color = 'red', alpha = 0.7, guide = "legend") +
-  ggtitle('Mental Health Clinics in Chicago by Community Area') +
-  theme_minimal() +
-  guides(size = guide_legend(title = "Number of Clinics"))
-
-# Standardize coordinate reference systems across sfs before joining 
-st_crs(chi_comm_area)
-st_crs(equity_zones_sf)
-
-chi_comm_area <- st_set_crs(chi_comm_area, st_crs(equity_zones_sf))
-
-# Perform spatial join to create master dataset for mapping 
-joined_data <- st_join(chi_comm_area, equity_zones_sf, join = st_intersects)
-joined_data <- st_join(joined_data, grocery_stores_sf, join = st_intersects)
-joined_data <- st_join(joined_data, mh_clinics_sf, join = st_intersects)
-
-# Plot the base map using equity zones
-equity_zone_base_map <- ggplot(data = unique(joined_data)) +
-  geom_sf(aes(fill = Equity.Zone), alpha = 0.7)
-
-# Layer in additional features
-# Simple map that shows equity zone distribution 
-gg <- ggplot(data = unique(joined_data)) +
-  geom_sf(aes(fill = Equity.Zone), alpha = 0.7)  
-
-# Aggregate number of grocery stores by Community Area
-grocery_count <- grocery_stores_sf %>%
-  group_by(COMMUNITY.AREA.NAME) %>%
-  summarise(Num_Grocery_Stores = n())
-
-# Join the aggregated counts with the spatial data
-plot_data <- st_join(joined_data, grocery_count, by = "COMMUNITY.AREA.NAME")
-
-# Aggregate number of MH clinics by Zip Code
-mh_clinic_count <- mh_clinics_sf %>%
-  group_by(ZIP) %>%
-  rename(ZIP.CODE = ZIP) %>%
-  summarise(Num_MH_clinics = n())
-
-# Join the aggregated counts with the spatial data
-plot_data <- st_join(plot_data, mh_clinic_count, by = "ZIP.CODE", left = TRUE)
-
-# Remove superfluous columns before continuing plotting 
-plot_data <- plot_data %>%
-  select(Equity.Zone, Num_Grocery_Stores, Longitude, Latitude, Num_MH_clinics)
-
-gg1 <- ggplot(data = unique(plot_data)) +
-  geom_sf(aes(fill = Num_Grocery_Stores), alpha = 0.7) +
-  geom_point(aes(x = Longitude, y = Latitude, size = Num_MH_clinics), color = "blue", alpha = 0.7) +
-  scale_fill_gradient(name = "Number of Grocery Stores", low = "lightblue", high = "darkblue") +
-  scale_size_continuous(name = "Number of MH Clinics", range = c(2, 10)) +
-  theme_minimal() +
-  ggtitle("Distribution of Grocery Stores and Mental Health Clinics in Chicago") +
-  labs(source = "Chicago Data Portal, 2023")
-
-# Attempting 2-way tile plot 
-gg_plot_data <- ggplot(data = unique(plot_data)) +
-  geom_sf(aes(fill = Num_Grocery_Stores), alpha = 0.7) +
-  geom_sf(aes(fill = Num_MH_clinics), alpha = 0.7) + 
-  scale_fill_gradient(name = "Number of Grocery Stores", low = "lightblue", high = "darkblue") +
-  theme_minimal() +
-  ggtitle("Distribution of Grocery Stores in Chicago") +
-  labs(source = "Chicago Data Portal, 2023")
-
-# Create a custom legend
-legend <- ggdraw() +
-  draw_plot(
-    ggplot() +
-      geom_sf(data = unique(plot_data), aes(fill = Num_MH_clinics), alpha = 0.7) +
-      scale_fill_gradient(name = "Number of MH Clinics", low = "lightgreen", high = "darkgreen") +
-      theme_minimal(),
-    0, 0, 1, 1
-  ) +
-  draw_plot(
-    get_legend(
-      ggplot() +
-        geom_sf(data = unique(plot_data), aes(fill = Num_MH_clinics), alpha = 0.7) +
-        scale_fill_gradient(name = "Number of MH Clinics", low = "lightgreen", high = "darkgreen") +
-        theme_minimal()
-    ),
-    x = 0.5, y = 0.4, width = 0.4, height = 0.4
-  )
-
-# Combine the main plot and legend
-combined_plot <- ggdraw() +
-  draw_plot(gg_plot_data, 0, 0, 1, 1) +
-  draw_plot(legend, x = 0.5, y = 0.4, width = 0.4, height = 0.4)
-
-
-# Add equity zones with distinct border colors
-gg2 <- gg1 +
-  geom_sf(data = equity_zones_sf, aes(color = Equity.Zone), fill = NA, size = 1.5) +
-  scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink"))
-
-# Layer in unhoused locations per PITS report 
-# Compile unhoused locations dataframe 
+# # Compile unhoused locations dataframe 
 unhoused_locations_df <- data.frame(
   Location = c("The Loop, River North", "CTA - Red Line (95th/Dan Ryan)", "CTA - Blue Line (Forest Park)",
                "Near West Side/Medical District", "CTA - Blue Line (Cumberland/Rosemont)", "North Side",
@@ -213,62 +77,120 @@ unhoused_locations_df <- data.frame(
                 -87.74167007391868, -87.79271259245185)
 )
 
-# Convert locations dataset into shapefile format
-unhoused_locations <- st_as_sf(unhoused_locations_df, coords = c("Longitude", "Latitude"))
+# Import community area shapefiles 
 
-# Check and standardize CRS
-if (!identical(st_crs(unhoused_locations), st_crs(plot_data))) {
-  unhoused_locations <- st_transform(unhoused_locations, st_crs(plot_data))
-}
+####UPDTAED THIS TO NOT USE TEMP_DIR BUT TO CALL IN VIA API####
 
-# Perform spatial join
-plot_data_with_PITC <- st_join(plot_data, unhoused_locations, join = st_intersects)
+chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
+  select(community, geometry)
 
-# don;t need to merge in, can just layer on
+# Specify zipfile path 
+#zip_path <- "Boundaries - Community Areas (current).zip"
 
-gg3 <- gg2 +
-  geom_sf(data = plot_data_with_PITC, aes(color = Equity.Zone), fill = NA, size = 1.5) +
-  scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink")) +
-  geom_point(data = plot_data_with_PITC, aes(x = Longitude, y = Latitude, size = Responses), color = "red", alpha = 0.7) +
-  scale_size_continuous(name = "Number of Unhoused People", range = c(1, 16)) +
-  theme_minimal()
+# Create a temporary directory to extract the contents + unzip files 
+#temp_dir <- tempdir()
+#unzip(zip_path, exdir = temp_dir)
 
-# tile plot for gg2 
-# make it a chloropleth within the equity zone!
-# check with Andre tomorrow - check Calendly 
+# List the files in the temporary directory
+#list.files(temp_dir)
 
-# Edit to correct individual points and re-incorporate MH clinic legend - brainstorm way to combine legends and use different shapes?
+# Read shapefiles into R
+#chi_comm_area <- st_read(temp_dir)
 
-# Experimenting with other map forms - tile plot?
+# Extract latitude and longitude
+coordinates <- st_coordinates(chi_comm_area$geometry)
 
-# Define color palette
-bvColors <- c("#be64ac", "#8c62aa", "#3b4994", "#dfb0d6", "#a5add3", "#5698b9", "#e8e8e8", "#ace4e4", "#5ac8c8")
+# Create new columnswith lat and long
+chi_comm_area$Latitude <- head(coordinates[, "Y"], n = nrow(chi_comm_area))
+chi_comm_area$Longitude <- head(coordinates[, "X"], n = nrow(chi_comm_area))
 
-# Create a legend data frame
- legendGoal <- melt(matrix(1:9, nrow = 3))
+# Convert all dfs to shapefile format to support spatial join 
+equity_zones_sf <- st_as_sf(equity_zones, wkt = "Geometry")
+grocery_stores_sf <- st_as_sf(grocery_stores, coords = c("LONGITUDE", "LATITUDE"))
+unhoused_locations_sf <- st_as_sf(unhoused_locations_df, coords = c("Longitude", "Latitude"))
 
-# Create a legend plot
-legendPlot <- ggplot(legendGoal, aes(x = Num_MH_clinics, y = Num_Grocery_Stores, fill = as.factor(value))) +
-  geom_tile() +
-  scale_fill_manual(name = "", values = bvColors) +
-  theme(legend.position = "none") +
-  theme(axis.title.x = element_text(size = rel(1), color = bvColors[3])) +
-  xlab("More MH Clinics -->") +
-  theme(axis.title.y = element_text(size = rel(1), color = bvColors[3])) +
-  ylab("More Grocery Stores -->") +
-  theme(axis.text = element_blank()) +
-  theme(line = element_blank())
+# Extract lat and long from mh_clinics sf as intermediate step
+mh_clinics$Longitude <- as.numeric(gsub("POINT \\((.*?) .*", "\\1", mh_clinics$Location))
+mh_clinics$Latitude <- as.numeric(gsub("POINT \\(.*? (.*?)\\)", "\\1", mh_clinics$Location))
+mh_clinics_sf <- st_as_sf(mh_clinics, coords = c("Longitude", "Latitude"))
 
-# Main map plot
-mainMapPlot <- ggplot(plot_data_with_PITC, aes(x = Longitude, y = Latitude, fill = Num_Grocery_Stores)) +
-  geom_sf() +
-  scale_fill_gradientn(name = "Number of Grocery Stores", colors = bvColors) +
-  theme_minimal()
+# Standardize coordinate reference systems across sfs before joining 
+st_crs(chi_comm_area)
+st_crs(equity_zones_sf)
 
-# Combine both plots using cowplot
-finalPlot <- ggdraw() +
-  draw_plot(legendPlot, 0.1, 0.7, width = 0.2, height = 0.2) +
-  draw_plot(mainMapPlot, 0.3, 0, width = 0.7, height = 0.7)
+chi_comm_area <- st_set_crs(chi_comm_area, st_crs(equity_zones_sf))
+
+# Perform spatial join to create master dataset for mapping 
+joined_data <- st_join(chi_comm_area, equity_zones_sf, join = st_intersects)
+joined_data <- st_join(joined_data, grocery_stores_sf, join = st_intersects)
+joined_data <- st_join(joined_data, mh_clinics_sf, join = st_intersects)
+
+# FIRST MAP: EQUITY ZONES
+# Simple map that shows equity zone distribution 
+equity_zones_plot <- ggplot(data = unique(joined_data)) +
+  geom_sf(aes(fill = Equity.Zone), alpha = 0.7)  
+
+# equity_zones_plot
+
+# SECOND MAP: GROCERY STORES
+
+# Aggregate number of grocery stores by Community Area
+grocery_count <- grocery_stores_sf %>%
+  group_by(`COMMUNITY AREA NAME`) %>%
+  summarise(Num_Grocery_Stores = n())
+
+# Join the aggregated counts with the spatial data
+plot_data <- st_join(joined_data, grocery_count, by = "COMMUNITY.AREA.NAME")
+
+grocery_plot <- ggplot(data = unique(plot_data)) +
+  geom_sf(aes(fill = Num_Grocery_Stores), alpha = 0.7) +
+  scale_fill_gradient(name = "Number of Grocery Stores", low = "#fcfdbf", high = "#842681")
+
+grocery_plot_equity <- grocery_plot +
+  geom_sf(data = equity_zones_sf, aes(color = Equity.Zone), fill = NA, size = 1.5, lwd = 1.2) +
+  scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink"))+
+  #ggtitle("Equity Zones + Grocery Stores")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Rename responses column in unhoused sf for clarity
+unhoused_locations_sf <- unhoused_locations_sf %>%
+  rename(`Number of Unhoused Individuals` = Responses)
+
+grocery_plot_unhoused_pop <- grocery_plot_equity +
+  geom_sf(data = unhoused_locations_sf, aes(size = `Number of Unhoused Individuals`), color = "#150e38", shape=17, fill = "#150e38") +  scale_alpha_continuous(range = c(0.1, 1), name = "Number of Unhoused Individuals") +
+  #labs(title = "Equity Zones, MH Clinics, Grocery Stores + Unhoused Population") +
+  theme_minimal()+
+  theme(axis.text = element_blank(), axis.title = element_blank())+
+  guides(color = guide_legend(ncol = 2))
+
+# THIRD MAP: MH CLINICS
+
+# Add a new column with the count of clinics per ZIP code
+mh_clinic_count <- mh_clinics_sf %>%
+  group_by(ZIP) %>%
+  summarise(Num_Clinics = n())
+
+# Join the aggregated counts with the spatial data
+plot_data <- st_join(joined_data, mh_clinic_count, by = "ZIP")
+
+mh_clinic_plot <- ggplot(data = unique(plot_data)) +
+  geom_sf(aes(fill = Num_Clinics), alpha = 0.7) +
+  scale_fill_gradient(name = "Number of Mental Health Clinics", low = "#fcfdbf", high = "#eb5760")
+
+mh_clinic_plot_equity <- mh_clinic_plot +
+  geom_sf(data = equity_zones_sf, aes(color = Equity.Zone), fill = NA, size = 1.5, lwd = 1.2) +
+  scale_color_manual(values = c("red", "green", "blue", "purple", "orange", "pink"))+
+  #ggtitle("Equity Zones + Grocery Stores")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+mh_clinic_plot_unhoused_pop <- mh_clinic_plot_equity +
+  geom_sf(data = unhoused_locations_sf, aes(size = `Number of Unhoused Individuals`), color = "#150e38", shape=17, fill = "#150e38") +  scale_alpha_continuous(range = c(0.1, 1), name = "Number of Unhoused Individuals") +
+  #labs(title = "Equity Zones, MH Clinics, Grocery Stores + Unhoused Population") +
+  theme_minimal()+
+  theme(axis.text = element_blank(), axis.title = element_blank())+
+  guides(color = guide_legend(ncol = 2))
+
+
 
 
 ######################################################################################
@@ -304,16 +226,19 @@ ui <- fluidPage(theme = shinytheme("flatly"),
               
                 tabPanel( #equity mental health grocery
                   
-                  h2("Resource Equity"),
+                  h2("Determinants of Homelessness + Distribution of Unhoused Population in Chicago"),
                   
                   sidebarLayout(
                     sidebarPanel(
-                      selectInput("layer", "Select Layer", choices = c("Equity Zones", "Grocery Stores", "MH Clinics", "Unhoused Population")),
+                      selectInput("plot_selector", "Select variables to plot", 
+                                  choices = c("Equity Zones", "Equity Zones + Grocery Stores + Unhoused Population",
+                                              "Equity Zones + Mental Health Clinics + Unhoused Population"),
+                                  selected = "Equity Zones"),
                     ),
                   
                     mainPanel(
                       tabsetPanel(
-                      tabPanel(title = "Equity Map with Layers", leafletOutput("map"))
+                      tabPanel(plotOutput("selected_plot"))
                     ))
                   ))
                 ))
@@ -404,30 +329,22 @@ server <- function(input, output) {
     })
   
   ###Resource Equity
-  output$map <- renderLeaflet({
-    leaflet() %>%
-      addTiles() %>%
-      addLayersControl(overlayGroups = c("Equity Zones", "Grocery Stores", "MH Clinics", "Unhoused Population"))
+  
+  # Reactive function to select the plot based on user input
+  selected_plot <- reactive({
+    switch(input$plot_selector,
+           "Equity Zones" = equity_zones_plot,
+           "Equity Zones + Grocery Stores + Unhoused Population" = grocery_plot_unhoused_pop,
+           "Equity Zones + Mental Health Clinics + Unhoused Population" = mh_clinic_plot_unhoused_pop) 
   })
   
-  observe({
-    map <- leafletProxy("map")
-    
-    if (input$layer == "Equity Zones") {
-      map %>% clearMarkers() %>%
-        addMarkers(data = equity_zones, ~lon, ~lat, group = "Equity Zones", popup = ~name)
-    } else if (input$layer == "Grocery Stores") {
-      map %>% clearMarkers() %>%
-        addMarkers(data = grocery_stores, ~lon, ~lat, group = "Grocery Stores", popup = ~name)
-    } else if (input$layer == "MH Clinics") {
-      map %>% clearMarkers() %>%
-        addMarkers(data = mh_clinics, ~lon, ~lat, group = "MH Clinics", popup = ~name)
-    } else if (input$layer == "Unhoused Population") {
-      map %>% clearMarkers() %>%
-        addMarkers(data = unhoused_population, ~lon, ~lat, group = "Unhoused Population", popup = ~name)
-    }
+  # Render the selected plot with an adjustable size
+  output$selected_plot <- renderPlot({
+    selected_plot() +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5, size = 16)) +
+      theme(axis.text = element_blank(), axis.title = element_blank())
   })
-  
   
   
   
