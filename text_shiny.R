@@ -2,10 +2,12 @@ library(shiny)
 library(ggplot2)
 library(plotly)
 
-setwd("M:/p/GitHub/r_2/Housing-and-Migrants-Chicago/outside_data")
+setwd("C:/Users/steph/Documents/GitHub/R-DATA-2/Housing-and-Migrants-Chicago/")
 
 texas_feelings <- read.csv("texas_feelings.csv")
 texas_graph<- read.csv("texas_graph.csv")
+
+glimpse(texas_graph)
 
 #UI
 ui <- fluidPage(
@@ -25,7 +27,7 @@ ui <- fluidPage(
     tabPanel("Count Over Time", 
              selectInput("citySelect", "Choose a city:", 
                          choices = unique(texas_graph$City), 
-                         selected = "Chicago", multiple = TRUE),
+                         selected = unique(texas_graph$City)[1], multiple = TRUE),
              plotlyOutput("countPlot"))
   )
 )
@@ -75,14 +77,16 @@ server <- function(input, output) {
 
   # For Count Over Time Plot
   output$countPlot <- renderPlotly({
+    req(input$citySelect)  # Ensure that citySelect is not NULL or missing
     
-    # Validate input
-    validate(
-      need(input$citySelect, "Please select at least one city.")
-    )
-    
+    # Assuming texas_graph is available in your global environment
     filtered_data <- texas_graph %>%
-      filter(City %in% input$citySelect)
+      filter(City %in% input$citySelect) %>%
+      mutate(month_year = as.Date(month_year, format = "%Y-%m-%d"))
+    
+    # Ensure there are no zero or negative counts
+    filtered_data <- filtered_data %>% filter(Count > 0)
+      
   
     
     p <- ggplot(filtered_data, aes(x = month_year, y = log(Count), color = City)) +

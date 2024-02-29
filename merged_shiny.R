@@ -262,7 +262,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                     sidebarPanel(
                       selectInput("citySelect", "Choose a city:", 
                                   choices = unique(texas_graph$City), 
-                                  selected = "Chicago", multiple = TRUE)
+                                  selected = unique(texas_graph$City)[1], multiple = TRUE)
                     ),
                   
                   mainPanel(
@@ -423,17 +423,19 @@ server <- function(input, output) {
   
   # For Count Over Time Plot
   output$countPlot <- renderPlotly({
+    req(input$citySelect)  # Ensure that citySelect is not NULL or missing
     
-    # Validate input
-    validate(
-      need(input$citySelect, "Please select at least one city.")
-    )
-    
+    # Assuming texas_graph is available in your global environment
     filtered_data <- texas_graph %>%
-      filter(City %in% !!sym(input$citySelect))
+      filter(City %in% input$citySelect) %>%
+      mutate(month_year = as.Date(month_year, format = "%Y-%m-%d"))
+    
+    # Ensure there are no zero or negative counts
+    filtered_data <- filtered_data %>% filter(Count > 0)
     
     
-    p2 <- ggplot(filtered_data, aes(x = month_year, y = log(Count), color = City)) +
+    
+    p <- ggplot(filtered_data, aes(x = month_year, y = log(Count), color = City)) +
       geom_line() + 
       geom_point() + 
       scale_x_date(date_breaks = "1 year", date_labels = "%Y")+
@@ -441,7 +443,7 @@ server <- function(input, output) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
       labs(x = "Time", y = "Count", title = "Count Over Time by City") 
     
-    ggplotly(p2)
+    ggplotly(p)
     
   })
   
