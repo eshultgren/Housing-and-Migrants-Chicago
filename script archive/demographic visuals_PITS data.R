@@ -1,3 +1,5 @@
+# This script uses data extracted from the 2023 Point in Time Survey Report to generate a set of static plots to visualize the demographic changes in Chicago's unhoused population over time (2005-2023).
+
 # Clear workspace and set working directory 
 rm(list = ls())
 setwd("C:/Users/higgi/Documents/GitHub/Housing-and-Migrants-Chicago/outside_data")
@@ -146,8 +148,6 @@ veteran_pop_plot <- ggplot(unhoused_veterans_nm, aes(x = Year)) +
         plot.title = element_text(hjust = 0.5),
         panel.background = element_rect(fill = "gray80", color="transparent"))
 
-#### Time permitting - edit this code so we introduce vertical lines for key War on Terror dates
-
 # Isolate dates that could have an effect on unhoused veteran population 
 important_dates <- data.frame(date = as.Date(c("2011-12-15", "2021-08-30")), label = c("End of Iraq War", "US withdrawal from Afghanistan"))
 
@@ -208,8 +208,6 @@ race_change_plot <- total_race_data %>%
        caption = "Source: Chicago Point-in-Time County Survey Report, 2023") +
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_rect(fill = "gray80", color="transparent"))
-
-# Time permitting - better way to clean + visualize? Incorporate sheltered/unsheltered disagg?
 
 # Demographics: Gender 
 
