@@ -1,16 +1,16 @@
 ##Static Plot##
 
-# The first part of this script uses data extracted from the 2023 Point in Time 
-# Survey Report to generate a set of static plots to visualize the demographic 
+# The first part of this script uses data extracted from the 2023 Point in Time
+# Survey Report to generate a set of static plots to visualize the demographic
 # changes in Chicago's unhoused population over time (2005-2023).
 
-# Clear workspace and set working directory 
+# Clear workspace and set working directory
 rm(list = ls())
 setwd("C:/Users/higgi/Documents/GitHub/Housing-and-Migrants-Chicago/outside_data")
 
 library(ggplot2)
 library(leaflet)
-library(RColorBrewer) 
+library(RColorBrewer)
 library(leaflet.extras)
 library(tmap)
 library(tmaptools)
@@ -23,7 +23,7 @@ library(tidyr)
 library(viridis)
 library(stringr)
 
-# Compile unhoused locations dataframe 
+# Compile unhoused locations dataframe
 unhoused_locations_df <- data.frame(
   Location = c("The Loop, River North", "CTA - Red Line (95th/Dan Ryan)", "CTA - Blue Line (Forest Park)",
                "Near West Side/Medical District", "CTA - Blue Line (Cumberland/Rosemont)", "North Side",
@@ -41,24 +41,24 @@ unhoused_locations_df <- data.frame(
 # Convert locations dataset into shapefile format
 unhoused_locations <- st_as_sf(unhoused_locations_df, coords = c("Longitude", "Latitude"), crs = 4326)
 
-# Import shapefiles for spatial data: 
+# Import shapefiles for spatial data:
 
 chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
   select(community, geometry)
 
-# Specify zipfile path 
+# Specify zipfile path
 zip_path <- "Boundaries - Community Areas (current).zip"
 
-# Check and transform coordinate reference system  
+# Check and transform coordinate reference system
 if (!identical(st_crs(unhoused_locations), st_crs(chi_comm_area))) {
   # Transform the unhoused_locations dataset to match the CRS of chi_comm_area
   unhoused_locations <- st_transform(unhoused_locations, st_crs(chi_comm_area))
 }
 
-# Perform spatial join 
+# Perform spatial join
 joined_data <- st_join(unhoused_locations, chi_comm_area)
 
-# Plot distribution of unhoused population 
+# Plot distribution of unhoused population
 
 unhoused_location_map <- ggplot() +
   geom_sf(data = chi_comm_area, fill = "white", color = "black", size = 0.5) +
@@ -72,7 +72,7 @@ unhoused_location_map <- ggplot() +
 
 unhoused_location_map
 
-# Create a dataframe for reasons for being unhoused 
+# Create a dataframe for reasons for being unhoused
 unhoused_reason <- data.frame(
   Cause = c("Family Disputes", "Multiple", "Loss of employment/underemployment",
             "Eviction, Foreclosure, Unable to Renew", "Disasters (i.e. Fire, Flood)",
@@ -80,10 +80,10 @@ unhoused_reason <- data.frame(
   Percent = c(46.90, 18.50, 14.80, 9.90, 6.20, 1.20, 2.50, 100.00)
 )
 
-# Remove total row before plotting 
+# Remove total row before plotting
 unhoused_reason <- unhoused_reason[unhoused_reason$Cause != "Total", ]
 
-# Plot options 
+# Plot options
 unhoused_reason_plot <- ggplot(unhoused_reason, aes(y = reorder(Cause, -Percent), x = Percent, fill = Cause)) +
   geom_bar(stat = "identity", color = "white", alpha = 0.8) +
   theme_minimal() +
@@ -99,7 +99,7 @@ unhoused_reason_plot <- ggplot(unhoused_reason, aes(y = reorder(Cause, -Percent)
        x = "Percentage",
        caption = "Source: Chicago Point-in-Time County Survey Report, 2023") +
   scale_x_continuous(labels = scales::percent_format(scale = 1)) +
-  scale_fill_viridis_d(option = "magma") 
+  scale_fill_viridis_d(option = "magma")
 
 ggplot(unhoused_reason, aes(x = reorder(Cause, -Percent), y = Percent, fill = Cause)) +
   geom_bar(stat = "identity", color = "white", alpha = 0.8) +
@@ -116,9 +116,9 @@ ggplot(unhoused_reason, aes(x = reorder(Cause, -Percent), y = Percent, fill = Ca
        caption = "Source: Chicago Point-in-Time County Survey Report, 2023") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   scale_fill_viridis_d(option = "magma") +
-  guides(fill = guide_legend(title = "Causes")) 
+  guides(fill = guide_legend(title = "Causes"))
 
-# Veteran visuals 
+# Veteran visuals
 
 unhoused_veterans <- data.frame(
   Year = c(2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2009, 2007, 2005),
@@ -130,14 +130,14 @@ unhoused_veterans <- data.frame(
   Total_PercentChange = c(-1.60, 8.30, 5.50, 11.40, 10.60, 11.70, 12.20, 13.20, 14.90, 16.00, 15.50, NA, 10.10, 9.20, 15.40, 11)
 )
 
-# Define colors within magma palette to be used for longitudinal veteran plot 
+# Define colors within magma palette to be used for longitudinal veteran plot
 magma_colors <- c("#7201A8", "#F26911", "#1E2022")
 
-# Drop missing values from dataset prior to plotting 
+# Drop missing values from dataset prior to plotting
 unhoused_veterans_nm <- unhoused_veterans %>%
   drop_na()
 
-# Plot unhoused veteran population over time 
+# Plot unhoused veteran population over time
 
 veteran_pop_plot <- ggplot(unhoused_veterans_nm, aes(x = Year)) +
   geom_smooth(aes(y = Sheltered_Count, color = "Sheltered"), size = 1.1, alpha = 0.8, method = "auto", se = FALSE, span = 0.5) +
@@ -152,7 +152,7 @@ veteran_pop_plot <- ggplot(unhoused_veterans_nm, aes(x = Year)) +
         plot.title = element_text(hjust = 0.5),
         panel.background = element_rect(fill = "gray80", color="transparent"))
 
-# Isolate dates that could have an effect on unhoused veteran population 
+# Isolate dates that could have an effect on unhoused veteran population
 important_dates <- data.frame(date = as.Date(c("2011-12-15", "2021-08-30")), label = c("End of Iraq War", "US withdrawal from Afghanistan"))
 
 # Demographics: race
@@ -197,7 +197,7 @@ total_race_data <- data.frame(
 total_race_data$Year <- as.numeric(gsub("\\*$", "", as.character(total_race_data$Year)))
 total_race_data$Year <- as.numeric(gsub("\\*$", "", as.character(total_race_data$Year)))
 
-# Plot change in racial distribution of unhoused population 
+# Plot change in racial distribution of unhoused population
 race_change_plot <- total_race_data %>%
   na.omit() %>%
   arrange(Year) %>%
@@ -213,7 +213,7 @@ race_change_plot <- total_race_data %>%
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_rect(fill = "gray80", color="transparent"))
 
-# Demographics: Gender 
+# Demographics: Gender
 
 # Sheltered data
 sheltered_gender_data <- data.frame(
@@ -257,7 +257,7 @@ unsheltered_gender_data <- data.frame(
   `2005` = c("22%", "78%", NA, NA)
 )
 
-# Total data 
+# Total data
 total_gender_data <- data.frame(
   Gender = c("Female", "Male", "Transgender", "Other Gender"),
   `2023**` = c("68.20%", "68.20%", "0.20%", "0.20%"),
@@ -278,13 +278,13 @@ total_gender_data <- data.frame(
   `2005` = c("66%", "66%", NA, NA)
 )
 
-# Make total gender df tidy prior to plotting 
+# Make total gender df tidy prior to plotting
 total_gender_data_tidy <- total_gender_data %>%
   pivot_longer(cols = -Gender, names_to = "Year", values_to = "Percent") %>%
   mutate(Year = as.numeric(str_replace(Year, "^X", ""))) %>%
   mutate(Percent = as.numeric(str_replace(Percent, "%", "")))
 
-# Plot change in gender distribution of unhoused population 
+# Plot change in gender distribution of unhoused population
 gender_change_plot <- total_gender_data_tidy %>%
   ggplot(aes(x = Year, y = Percent, color = Gender)) +
   geom_line() +
@@ -304,7 +304,7 @@ str(total_gender_data_tidy)
 summary(total_gender_data_tidy$Gender)
 unique(total_gender_data_tidy$Gender)
 
-# Demographics: Age 
+# Demographics: Age
 
 # Sheltered Data
 sheltered_age_data <- data.frame(
@@ -375,13 +375,13 @@ total_age_data <- data.frame(
   "2005" = c(26.00, NA, NA, 37.00, 3.00, 3.00, NA)
 )
 
-# Make total age df tidy prior to plotting 
+# Make total age df tidy prior to plotting
 total_age_data_tidy <- total_age_data %>%
   pivot_longer(cols = -Age.Category, names_to = "Year", values_to = "Percent") %>%
   mutate(Year = as.numeric(str_replace(Year, "^X", ""))) %>%
   mutate(Percent = as.numeric(str_replace(Percent, "%", "")))
 
-# Plot change in gender distribution of unhoused population 
+# Plot change in gender distribution of unhoused population
 age_change_plot <- total_age_data_tidy %>%
   na.omit() %>%
   ggplot(aes(x = Year, y = Percent, color = Age.Category)) +
@@ -398,12 +398,12 @@ age_change_plot <- total_age_data_tidy %>%
         panel.background = element_rect(fill = "gray80", color="transparent"))
 
 
-# Compile demographic visuals into a single static dashboard 
+# Compile demographic visuals into a single static dashboard
 combined_dashboard <- age_change_plot + gender_change_plot + race_change_plot + unhoused_location_map + unhoused_reason_plot +veteran_pop_plot
 
 combined_dashboard
 
-# Export individual png files for each plot 
+# Export individual png files for each plot
 
 # Export Age Change Plot
 ggsave("age_change_plot.png", plot = age_change_plot, width = 10, height = 6, units = "in", dpi = 300)
@@ -425,4 +425,3 @@ ggsave("veteran_pop_plot.png", plot = veteran_pop_plot, width = 10, height = 6, 
 
 # Export Combined Dashboard
 ggsave("combined_dashboard.png", plot = combined_dashboard, width = 20, height = 12, units = "in", dpi = 300)
-
