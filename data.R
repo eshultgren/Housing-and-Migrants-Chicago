@@ -1,3 +1,20 @@
+
+library(tidyverse)
+library(shiny)
+library(sf)
+library(rnaturalearth)
+library(scales)
+library(ggmap)
+library(biscale)
+library(cowplot)
+library(ggplot2)
+library(readr)
+library(purrr)
+library(dplyr)
+library(jsonlite)
+library(viridis)
+
+
 ##Data Procesing##
 
 
