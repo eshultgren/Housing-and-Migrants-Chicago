@@ -4,7 +4,7 @@
 # Survey Report to generate a set of static plots to visualize the demographic
 # changes in Chicago's unhoused population over time (2005-2023).
 
-# Clear workspace and set working directory
+# Clear workspace and set working directory to outside_data folder
 rm(list = ls())
 setwd("C:/Users/higgi/Documents/GitHub/Housing-and-Migrants-Chicago/outside_data")
 
@@ -430,6 +430,8 @@ ggsave("combined_dashboard.png", plot = combined_dashboard, width = 20, height =
 
 #### Opioid Static Plot ####
 
+unhoused_locations_multiyear <- read_csv(file.path(path, "unhoused_locations.csv"))
+
 ##This plot represented overdose rate by zip code with high concentrations of unhoused folks by year. In order to get 2021 and 2022, update plot name, fill variable, and title
 
 opioid_rate_2020 <- ggplot() +
@@ -440,8 +442,9 @@ opioid_rate_2020 <- ggplot() +
        caption = "Data: IL Dept of Public Health, ACS, PIT Survey") +
   scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
                      breaks = pretty_breaks(n = 5)) +
-  geom_point(data = unhoused_locations, aes(x = Longitude, y = Latitude,
-                                            size = Responses,),
+  geom_point(data = unhoused_locations,aes(x = Longitude,
+                                 y = Latitude,
+                                size = Responses,),
              color = "#8c62aa",alpha = 0.7) +
   guides(size = FALSE) +
   theme_map() +

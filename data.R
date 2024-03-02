@@ -106,7 +106,7 @@ library(viridis)
                                 coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
  
  #Don't need to run as file already saved to repo
- #writeOGR(unhoused_locations, dsn = '.', layer = 'poly', driver = "ESRI Shapefile")
+ #writeOGR(unhoused_locations_shp, dsn = '.', layer = 'poly', driver = "ESRI Shapefile")
  
  ################ End of Opioid Data Prep ######################
  
