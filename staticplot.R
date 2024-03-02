@@ -430,9 +430,8 @@ ggsave("combined_dashboard.png", plot = combined_dashboard, width = 20, height =
 
 #### Opioid Static Plot ####
 
-unhoused_locations_multiyear <- read_csv(file.path(path, "unhoused_locations.csv"))
-
 ##This plot represented overdose rate by zip code with high concentrations of unhoused folks by year. In order to get 2021 and 2022, update plot name, fill variable, and title
+### 3 potential plots from this code: 2020 - 2022
 
 opioid_rate_2020 <- ggplot() +
   geom_sf(data = zip_chi_shape) +
@@ -442,9 +441,8 @@ opioid_rate_2020 <- ggplot() +
        caption = "Data: IL Dept of Public Health, ACS, PIT Survey") +
   scale_fill_viridis(name="Opioid Overdose Rate", option = "magma", trans = "reverse", 
                      breaks = pretty_breaks(n = 5)) +
-  geom_point(data = unhoused_locations,aes(x = Longitude,
-                                 y = Latitude,
-                                size = Responses,),
+  geom_point(data = filter(unhoused_locations_multiyr, Year == 2022), 
+             aes(x = Longitude, y = Latitude, size = Responses,),
              color = "#8c62aa",alpha = 0.7) +
   guides(size = FALSE) +
   theme_map() +
@@ -460,3 +458,12 @@ print(opioid_rate_2020)
 
 ## 2021 is similiar but uses fill = overdose_rate_21
 #same with 2022 where fill = overdose_rate_22
+
+
+
+
+
+
+
+
+

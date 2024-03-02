@@ -102,11 +102,17 @@ library(viridis)
  )
  
  # Convert locations dataset into shapefile format
- unhoused_locations <- st_as_sf(unhoused_locations_df,
+ unhoused_locations_multiyr <- st_as_sf(unhoused_locations_df,
                                 coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
  
  #Don't need to run as file already saved to repo
- #writeOGR(unhoused_locations_shp, dsn = '.', layer = 'poly', driver = "ESRI Shapefile")
+ #writeOGR(unhoused_locations, dsn = '.', layer = 'poly', driver = "ESRI Shapefile")
  
  ################ End of Opioid Data Prep ######################
+ 
+ 
+ 
+ 
+ 
+ 
  
