@@ -12,6 +12,10 @@ library(sf)
 library(ggmap)
 library(osmdata)
 library(patchwork)
+library(dplyr)
+library(tidyr)
+library(viridis)
+library(stringr)
 
 # Compile unhoused locations dataframe 
 unhoused_locations_df <- data.frame(
@@ -33,18 +37,11 @@ unhoused_locations <- st_as_sf(unhoused_locations_df, coords = c("Longitude", "L
 
 # Import shapefiles for spatial data: 
 
+chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
+  select(community, geometry)
+
 # Specify zipfile path 
 zip_path <- "Boundaries - Community Areas (current).zip"
-
-# Create a temporary directory to extract the contents + unzip files 
-temp_dir <- tempdir()
-unzip(zip_path, exdir = temp_dir)
-
-# List the files in the temporary directory
-list.files(temp_dir)
-
-# Read shapefiles into R
-chi_comm_area <- st_read(temp_dir)
 
 # Check and transform coordinate reference system  
 if (!identical(st_crs(unhoused_locations), st_crs(chi_comm_area))) {
@@ -287,7 +284,6 @@ total_gender_data_tidy <- total_gender_data %>%
 
 # Plot change in gender distribution of unhoused population 
 gender_change_plot <- total_gender_data_tidy %>%
-  na.omit() %>%
   ggplot(aes(x = Year, y = Percent, color = Gender)) +
   geom_line() +
   geom_point() +
@@ -305,7 +301,6 @@ gender_change_plot <- total_gender_data_tidy %>%
 str(total_gender_data_tidy)
 summary(total_gender_data_tidy$Gender)
 unique(total_gender_data_tidy$Gender)
-
 
 # Demographics: Age 
 

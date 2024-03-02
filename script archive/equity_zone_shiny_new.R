@@ -112,20 +112,9 @@ mh_clinic_plot_2 <- grocery_plot +
 
 # THIRD MAP: MH CLINICS
 # Add a new column with the count of clinics per ZIP code
-mh_clinics_sf <- mh_clinics_sf %>%
-  group_by(ZIP) %>%
-  mutate(Num_Clinics = n()) %>%
-  ungroup()
-
 plot_data <- plot_data %>%
   group_by(ZIP) %>%
-  mutate(Num_Clinics = n()) %>%
-  ungroup()
-
-# Exclude the top 2 outliers with the highest latitude values
-filtered_mh_clinics_sf <- mh_clinics_sf %>%
-  arrange(desc(Num_Clinics)) %>%
-  filter(row_number() > 2) 
+  mutate(Num_Clinics = n()) 
 
 mh_clinic_plot <- grocery_plot +
   geom_sf(data = filtered_mh_clinics_sf, aes(fill = NULL), color = '#721f81',fill = '#721f81', size = 1, alpha = 0.7) +
