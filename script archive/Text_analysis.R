@@ -7,7 +7,10 @@ library(SnowballC)
 library(rvest)
 library(stargazer)
 
-setwd("M:/p/GitHub/r_2/Housing-and-Migrants-Chicago/text files texas/full data")
+path <- 'C:/Users/steph/Documents/GitHub/R-DATA-2/Housing-and-Migrants-Chicago/text files texas/full data'
+setwd(path)
+texas_sent <- read.csv("data.csv")
+chicago_newcomers <- read.csv("Southern_Border_Arrivals_to_Chicago_-_2022-Present_20240227.csv")
 
 articles <- list()
 parsed_articles <- list()
@@ -36,11 +39,19 @@ for (i in 1:108) {
 # Now combine all the data frames into one
 combined_parsed_df <- bind_rows(parsed_articles, .id = "article_id")
 
+# Creating the "data" dataframe
 chicago_df <- combined_parsed_df %>% 
   mutate(article_id = as.numeric(article_id)) %>% 
   filter(str_detect(sentence, regex("Chicago", ignore_case = TRUE))) %>%
   filter(upos %in% c("NUM", "PROPN")) %>% 
   select(article_id,token)
+
+##From here I wrote it and had to manualy filter it
+##since it had a lot of noise that i was not able to clean easily inside R, 
+##since some new report refered to DC as the nations capital or other particularities
+
+
+## Sentiment Analysis
 
 sentiment_afinn <- get_sentiments("afinn") %>% 
   rename(afinn = value)
@@ -80,6 +91,8 @@ overall_texas_feelings %>%
     axis.text.x = element_text(angle = 45, hjust = 1),
   ) 
 
+
+## Regresion##
 Operation_lonestar_df <- Operation_lonestar_df %>% 
   mutate(article_id = 1:103)
 
@@ -87,9 +100,8 @@ Operation_lonestar_df <- Operation_lonestar_df %>%
 dates <- Operation_lonestar_df %>% 
   select(article_id,full_date)
 
-texas_sent <- read.csv("data.csv")
 
-chicago_newcomers <- read.csv("Southern_Border_Arrivals_to_Chicago_-_2022-Present_20240227.csv")
+
 
 chicago_newcomers <-chicago_newcomers %>% 
   mutate(Date = mdy(Date))

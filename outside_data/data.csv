@@ -1,0 +1,294 @@
+article_id,Count,City
+1,"12,500",Washington DC
+1,"37,500",NYC
+1,"31,200",Chicago
+1,"3,400",Philadelphia
+1,"16,000",Denver
+1,"1,500",LA
+2,"12,500",Washington DC
+2,"37,400",NYC
+2,"31,100",Chicago
+2,"3,400",Philadelphia
+2,"15,900",Denver
+2,"1,500",LA
+3,"12,500",Washington DC
+3,"35,600",NYC
+3,"29,400",Chicago
+3,"3,400",Philadelphia
+3,"15,000",Denver
+3,"1,400",LA
+4,"12,500",Washington DC
+4,"37,900",NYC
+4,"31,500",Chicago
+4,"3,400",Philadelphia
+4,"16,300",Denver
+4,"1,500",LA
+5,"12,500",Washington DC
+5,"37,800",NYC
+5,"31,400",Chicago
+5,"3,400",Philadelphia
+5,"16,200",Denver
+5,"1,500",LA
+6,"12,500",Washington DC
+6,"37,500",NYC
+6,"31,200",Chicago
+6,"3,400",Philadelphia
+6,"16,000",Denver
+6,"1,500",LA
+7,"12,500",Washington DC
+7,"37,400",NYC
+7,"31,100",Chicago
+7,"3,400",Philadelphia
+7,"15,900",Denver
+7,"1,500",LA
+8,"12,500",Washington DC
+8,"35,600",NYC
+8,"29,400",Chicago
+8,"3,400",Philadelphia
+8,"15,000",Denver
+8,"1,400",LA
+9,"12,500",Washington DC
+9,"37,900",NYC
+9,"31,500",Chicago
+9,"3,400",Philadelphia
+9,"16,300",Denver
+9,"1,500",LA
+10,"12,500",Washington DC
+10,"37,800",NYC
+10,"31,400",Chicago
+10,"3,400",Philadelphia
+10,"16,200",Denver
+10,"1,500",LA
+11,"9,100",Washington DC
+11,"5,200",NYC
+11,"1,500",Chicago
+11,890,Philadelphia
+12,"9,100",Washington DC
+12,"5,200",NYC
+12,"1,500",Chicago
+12,890,Philadelphia
+13,"9,100",Washington DC
+13,"5,200",NYC
+13,"1,500",Chicago
+13,890,Philadelphia
+14,"9,100",Washington DC
+14,"4,900",NYC
+14,"1,500",Chicago
+14,840,Philadelphia
+16,"9,100",Washington DC
+16,"5,200",NYC
+16,"1,500",Chicago
+16,890,Philadelphia
+17,"9,100",Washington DC
+17,"5,200",NYC
+17,"1,500",Chicago
+17,890,Philadelphia
+18,"9,100",Washington DC
+18,"5,200",NYC
+18,"1,500",Chicago
+18,890,Philadelphia
+28,"9,400",Washington DC
+28,"6,700",NYC
+28,"1,900",Chicago
+28,"1,000",Philadelphia
+28,40,Denver
+31,"10,200",Washington DC
+31,"8,700",NYC
+31,"3,000",Chicago
+31,"1,600",Philadelphia
+31,200,Denver
+31,40,LA
+32,"10,000",Washington DC
+32,"8,200",NYC
+32,"2,600",Chicago
+32,"1,600",Philadelphia
+32,210,Denver
+32,40,LA
+33,"9,700",Washington DC
+33,"7,900",NYC
+33,"2,300",Chicago
+33,"1,500",Philadelphia
+33,160,Denver
+34,"9,700",Washington DC
+34,"7,600",NYC
+34,"2,200",Chicago
+34,"1,400",Philadelphia
+34,120,Denver
+35,"10,600",Washington DC
+35,"10,500",NYC
+35,"4,300",Chicago
+35,"2,000",Philadelphia
+35,350,Denver
+36,"10,400",Washington DC
+36,"10,300",NYC
+36,"4,100",Chicago
+36,"2,000",Philadelphia
+36,300,Denver
+36,160,LA
+38,"10,400",Washington DC
+38,"9,700",NYC
+38,"3,700",Chicago
+38,"1,800",Philadelphia
+38,250,Denver
+38,110,LA
+39,"10,300",Washington DC
+39,"9,300",NYC
+39,"3,400",Chicago
+39,"1,800",Philadelphia
+39,200,Denver
+39,80,LA
+40,"11,100",Washington DC
+40,"12,600",NYC
+40,"5,900",Chicago
+40,"2,400",Philadelphia
+40,870,Denver
+40,360,LA
+41,"11,000",Washington DC
+41,"12,000",NYC
+41,"5,600",Chicago
+41,"2,300",Philadelphia
+41,710,Denver
+41,330,LA
+42,"10,600",Washington DC
+42,"10,900",NYC
+42,"4,600",Chicago
+42,"2,100",Philadelphia
+42,440,Denver
+42,240,LA
+43,"12,200",Washington DC
+43,"16,400",NYC
+43,"10,700",Chicago
+43,"3,100",Philadelphia
+43,"2,400",Denver
+43,770,LA
+44,"11,900",Washington DC
+44,"14,900",NYC
+44,"8,700",Chicago
+44,"3,000",Philadelphia
+44,"1,600",Denver
+44,610,LA
+45,"11,500",Washington DC
+45,"14,100",NYC
+45,"7,600",Chicago
+45,"2,900",Philadelphia
+45,"1,300",Denver
+45,530,LA
+46,"11,300",Washington DC
+46,"13,500",NYC
+46,"7,000",Chicago
+46,"2,600",Philadelphia
+46,"1,100",Denver
+46,480,LA
+47,"11,300",Washington DC
+47,"13,100",NYC
+47,"6,400",Chicago
+47,"2,500",Philadelphia
+47,"1,000",Denver
+47,440,LA
+48,"12,500",Washington DC
+48,"21,100",NYC
+48,"16,500",Chicago
+48,"3,200",Philadelphia
+48,"4,600",Denver
+48,"1,000",LA
+49,"12,500",Washington DC
+49,"20,000",NYC
+49,"15,000",Chicago
+49,"3,200",Philadelphia
+49,"3,900",Denver
+49,980,LA
+50,"12,500",Washington DC
+50,"18,500",NYC
+50,"13,500",Chicago
+50,"3,200",Philadelphia
+50,"3,200",Denver
+50,940,LA
+51,"12,500",Washington DC
+51,"24,200",NYC
+51,"19,700",Chicago
+51,"3,200",Philadelphia
+51,"6,800",Denver
+51,"1,100",LA
+53,"12,500",Washington DC
+53,"23,800",NYC
+53,"19,100",Chicago
+53,"3,200",Philadelphia
+53,"6,500",Denver
+53,"1,100",LA
+54,"12,500",Washington DC
+54,"23,100",NYC
+54,"18,400",Chicago
+54,"3,200",Philadelphia
+54,"6,100",Denver
+54,"1,100",LA
+55,"12,500",Washington DC
+55,"22,300",NYC
+55,800,Chicago
+55,"3,200",Philadelphia
+55,"5,600",Denver
+55,"1,100",LA
+56,"12,500",Washington DC
+56,"33,600",NYC
+56,"28,000",Chicago
+56,"3,400",Philadelphia
+56,"13,800",Denver
+56,"1,300",LA
+57,"12,500",Washington DC
+57,"31,200",NYC
+57,"25,300",Chicago
+57,"3,400",Philadelphia
+57,"11,800",Denver
+57,"1,200",LA
+58,"12,500",Washington DC
+58,"29,300",NYC
+58,"23,800",Chicago
+58,"3,300",Philadelphia
+58,"10,300",Denver
+58,"1,200",LA
+59,"12,500",Washington DC
+59,"27,300",NYC
+59,"22,500",Chicago
+59,"3,200",Philadelphia
+59,"8,900",Denver
+59,"1,100",LA
+60,"12,500",Washington DC
+60,"25,900",NYC
+60,"21,100",Chicago
+60,"3,200",Philadelphia
+60,"7,800",Denver
+60,"1,100",LA
+86,"8,100",Washington DC
+86,"2,900",NYC
+86,870,Chicago
+87,"8,100",Washington DC
+87,"2,700",NYC
+87,770,Chicago
+91,"8,200",Washington DC
+91,"3,400",NYC
+91,"1,100",Chicago
+92,"8,200",Washington DC
+92,"3,400",NYC
+92,"1,000",Chicago
+93,"8,200",Washington DC
+93,"3,300",NYC
+93,"1,000",Chicago
+94,"8,200",Washington DC
+94,"3,100",NYC
+94,920,Chicago
+96,"8,400",Washington DC
+96,"3,800",NYC
+96,"1,200",Chicago
+97,"8,300",Washington DC
+97,"3,700",NYC
+97,"1,200",Chicago
+98,"8,300",Washington DC
+98,"3,500",NYC
+98,"1,100",Chicago
+99,"9,000",Washington DC
+99,"4,900",NYC
+99,"1,500",Chicago
+99,600,Philadelphia
+100,"8,700",Washington DC
+100,"4,500",NYC
+100,"1,500",Chicago
+100,520,Philadelphia
