@@ -1,3 +1,12 @@
+library(tidytext)
+library(textdata)
+library(tidyverse)
+library(sentimentr)
+library(udpipe)
+library(SnowballC)
+library(rvest)
+library(stargazer)
+
 #Webscrape
 #I did 2024 by itself since it only had 2 month and it seemed too much of a hasle to code seperate breaks just for 2024 #sue me
 
@@ -90,9 +99,35 @@ base_url <- paste0("https://gov.texas.gov/news/archive/", i, "/")
 # Polite scraping: pause between requests
 Sys.sleep(time = 1)
 }
-}
+
+##write.csv(df_texas,"scrapped_article_list.csv") i wrote this file as proof of the scrappe feel free to run in it just take a minute
 
 df_texas <- rbind(df_2024,df_texas)
 
 filtered_df <- df_texas %>%
   filter(str_detect(title, "Operation Lone Star"))
+
+Operation_lonestar_df <- filtered_df %>% 
+  mutate(article_id = 1:103,
+         date_string = paste(date, year),
+         full_date = mdy(date_string)) %>% 
+  select(full_date,article_id,title,link)
+  
+##write.csv(Operation_lonestar_df,"Operation_lonestar.csv") I use this to extract the date for the text analysis
+
+article_count <- 1
+
+
+####check####
+for(link in filtered_df$link){
+  content_page <- read_html(link)
+  content <- content_page %>%
+    html_elements(".field--name-body.field--type-text-with-summary.field--label-hidden.field--item") %>%
+    html_text()
+  # Adjust the file path as per your directory structure
+  file_name <- paste0("C:/Users/steph/Documents/GitHub/R-DATA-2/problem-set-3-sgarner796/Text_files", "/article_", article_count, ".html") # Update path
+  writeLines(content, file_name)
+  article_count <- article_count + 1
+}
+
+
