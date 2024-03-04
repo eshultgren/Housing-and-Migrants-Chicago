@@ -114,18 +114,18 @@ Operation_lonestar_df <- filtered_df %>%
   select(full_date,article_id,title,link)
   
 ##write.csv(Operation_lonestar_df,"Operation_lonestar.csv") I use this to extract the date for the text analysis
+#This should be where you want the documents to be hosted
 
+path <- "M:/p/School/2024/quarter 5/r/final r/data"
 article_count <- 1
 
-
-####check####
 for(link in filtered_df$link){
   content_page <- read_html(link)
   content <- content_page %>%
-    html_elements(".field--name-body.field--type-text-with-summary.field--label-hidden.field--item") %>%
+    html_elements("section") %>%
     html_text()
   # Adjust the file path as per your directory structure
-  file_name <- paste0("C:/Users/steph/Documents/GitHub/R-DATA-2/problem-set-3-sgarner796/Text_files", "/article_", article_count, ".html") # Update path
+  file_name <- paste0("M:/p/School/2024/quarter 5/r/final r/data", "/article_", article_count, ".html") # Update path
   writeLines(content, file_name)
   article_count <- article_count + 1
 }
