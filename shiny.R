@@ -24,7 +24,7 @@ library(cowplot)
 library(reshape2)
 library(leaflet)
 
-path <- "/Users/josemacias/Documents/GitHub/Housing-and-Migrants-Chicago"
+path <- "M:/p/GitHub/r_2/Housing-and-Migrants-Chicago"
 setwd(path)
 
 #####opioid data prep####
@@ -409,7 +409,8 @@ server <- function(input, output) {
     # Assuming texas_graph is available in your global environment
     filtered_data <- texas_graph %>%
       filter(City %in% input$citySelect) %>%
-      mutate(month_year = as.Date(month_year, format = "%Y-%m-%d"))
+      mutate(month_year = as.Date(month_year, format = "%m/%d/%Y")) %>%
+      filter(Count > 0)
     
     # Ensure there are no zero or negative counts
     filtered_data <- filtered_data %>% filter(Count > 0)
@@ -431,5 +432,7 @@ server <- function(input, output) {
   
   
 }
+
+
 
 shinyApp(ui = ui, server = server)
