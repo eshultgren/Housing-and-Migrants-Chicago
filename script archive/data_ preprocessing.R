@@ -68,13 +68,15 @@ zip_chi_shape <- st_read("https://data.cityofchicago.org/resource/unjd-c2ca.geoj
 
 # 5 Census Data
 options(timeout = 999)
-
+var <- load_variables(2022, "acs1")
 vars <- c(
   "B01003_001", # Total Pop
   "B01001B_001", # Black Pop
   "B01001I_001", # Hispanic Pop
-  "B07011_001" # Median Income
+  "B07011_001", # Median Income
+  "B05002_013"   # foriegn born
 )
+
 census_data <- 
   get_acs(geography = "tract", 
           variables = vars, 
@@ -83,7 +85,7 @@ census_data <-
           geometry = T,
           output = "wide",
           year = 2022) |>
-  rename(black_pop = B01001B_001E,latino_pop = B01001I_001E, total_pop = B01003_001E, median_income = B07011_001E) |>
+  rename(black_pop = B01001B_001E,latino_pop = B01001I_001E, total_pop = B01003_001E, median_income = B07011_001E, foreign_born = B05002_013E) |>
   select(-c(B01003_001M,B01001I_001M,B01001B_001M,B07011_001M))
 ############### API Datasets End
 ############### Spatial Work Begin

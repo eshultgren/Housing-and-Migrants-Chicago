@@ -21,78 +21,50 @@ library(shinythemes)
 library(jsonlite)
 library(viridis)
 library(cowplot)
-library(ggplot2)
-library(readr)
-library(purrr)
-library(dplyr)
 library(reshape2)
 library(leaflet)
-install.packages("leaflet")
-#install.packages("reshape2")
 
-path <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\outside_data\\")
-
-path_texas <- ("C:\\Users\\emmas\\OneDrive\\Documents\\GitHub\\Housing-and-Migrants-Chicago\\text files texas\\full data\\")
+path <- "/Users/josemacias/Documents/GitHub/Housing-and-Migrants-Chicago"
+setwd(path)
 
 #####opioid data prep####
 # unhoused locations per PITS report 
-
-unhoused_locations_yrs_df <- read_csv(file.path(path, "unhoused_locations.csv"))
+unhoused_locations_yrs_df <- st_read("shape_files/unhoused/unhoused_locations.shp")
 
 # Convert locations dataset into shapefile format
-unhoused_locations_yrs <- st_as_sf(unhoused_locations_yrs_df,
-                                   coords = c("Longitude", "Latitude"),  crs=4326, remove = FALSE)
-
+unhoused_locations_yrs <-unhoused_locations_yrs_df
 #merged ACS and IDPH data prior and write.csv to github repository, read in that file for shiny ease
-opioid_data <- read_csv(file.path(path, "opioid_data.csv"))
-
-#download Chicago neighborhood shapefiles
-zip_chi_shape <- st_read("https://data.cityofchicago.org/resource/unjd-c2ca.geojson")
-
-#create opioid shape file
-opioid_shape <- merge(zip_chi_shape, opioid_data, by = "zip")
-
-
-opioid_shape_long <- opioid_shape %>% 
-  select(zip, geometry, overdose_rate_2022, overdose_rate_2021, overdose_rate_2020) %>% 
-  rename(`2022` = overdose_rate_2022,
-         `2021` = overdose_rate_2021,
-         `2020` = overdose_rate_2020) %>% 
+opioid_shape_long <- 
+  st_read("shape_files/opioid_zip/opioid_shape.gpkg") %>%
+  select(zip, geom, overdose_rate_22, overdose_rate_21, overdose_rate_20) %>%
+  rename(`2022` = overdose_rate_22,
+         `2021` = overdose_rate_21,
+         `2020` = overdose_rate_20) %>%
   pivot_longer(cols = starts_with("20"), names_to = "Year", values_to = "Overdose_Rate")
+
+zip_chi_shape <- st_read("shape_files/chicago_zipcodes/chicago_zipcodes.shp")
 
 #####################################################
 
 ##### equity grocery mental health data prep #####
 
 # Import equity zone data 
-equity_zones <- read_csv(file.path(path, "Healthy_Chicago_Equity_Zones_20240222.csv"))
+equity_zones <- read_csv("outside_data/Healthy_Chicago_Equity_Zones_20240222.csv")
 
 # Import grocery store data
-grocery_stores <- read_csv(file.path(path, "Map_of_Grocery_Stores_-_2013.csv"))
+grocery_stores <- read_csv("outside_data/Map_of_Grocery_Stores_-_2013.csv")
 
 # Import mental health clinic location data 
-mh_clinics <- read_csv(file.path(path, "CDPH_Mental_Health_Resources_20240222.csv"))
+mh_clinics <- read_csv("outside_data/CDPH_Mental_Health_Resources_20240222.csv")
 
 # # Compile unhoused locations dataframe 
-unhoused_locations_df <- data.frame(
-  Location = c("The Loop, River North", "CTA - Red Line (95th/Dan Ryan)", "CTA - Blue Line (Forest Park)",
-               "Near West Side/Medical District", "CTA - Blue Line (Cumberland/Rosemont)", "North Side",
-               "CTA - Red Line", "South Side (East of State)", "O'Hare Airport", "South Side (West of State)",
-               "CTA - Red Line (Howard)", "West Town, Kennedy Expressway", "Midway Airport Terminal", "Northwest Side"),
-  Responses = c(170, 125, 118, 112, 71, 58, 54, 38, 33, 29, 13, 13, 12, 2),
-  Latitude = c(41.89248568824814, 41.72258849002998, 41.87370675013457, 41.86883204433447, 41.983883465320844, 41.90389519059428,
-               41.889900182393696, 41.75042676688248, 41.98037675551297, 41.75042676688248, 42.01889620273381, 41.95930482218085,
-               41.78852626097361, 41.88530874443534),
-  Longitude = c(-87.634044880516, -87.62443385767142, -87.81697954232854, -87.67398565436856, -87.83862460424264, -87.63211612952345,
-                -87.62808780459785, -87.63411546128873, -87.90900606226334, -87.63411546128873, -87.67255656226084, -87.74088846041468,
-                -87.74167007391868, -87.79271259245185)
-)
-
+unhoused_locations_df <- read_csv("outside_data/unhoused_locations_df.csv")
+  
 # Import community area shapefiles 
 
 ####UPDTAED THIS TO NOT USE TEMP_DIR BUT TO CALL IN VIA API####
 
-chi_comm_area  <- st_read("https://data.cityofchicago.org/resource/igwz-8jzy.geojson") |>
+chi_comm_area  <- st_read("shape_files/chicago_commarea/chicago_shape.shp") |>
   select(community, geometry)
 
 # Extract latitude and longitude
@@ -191,8 +163,8 @@ mh_clinic_plot_unhoused_pop <- mh_clinic_plot_equity +
 
 ##### text analysis #####
 
-texas_feelings <- read_csv(file.path(path_texas, "texas_feelings.csv"))
-texas_graph<-read_csv(file.path(path_texas, "texas_graph.csv"))
+texas_feelings <- read_csv("outside_data/texas_feelings.csv")
+texas_graph <- read_csv("outside_data/texas_graph.csv")
 
 
 ######################################################################################
@@ -460,19 +432,4 @@ server <- function(input, output) {
   
 }
 
-
-
-
-
 shinyApp(ui = ui, server = server)
-
-
-
-
-
-
-
-
-
-
-
