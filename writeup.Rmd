@@ -1,0 +1,115 @@
+---
+title: "Homelessness in Chicago and The Migrant Crisis"
+author: "Stephan Garner Cruz, Julia Higgins, Emma Hultgren, Jose Macias"
+date: '2024'
+output: pdf_document
+---
+
+# Research Question #
+The team was  inspired by the discourse around the Bring Chicago Home ballot measure, the recent release of the 2023 Point-in-Time Survey Count Results from the City of Chicago, and the impending eviction deadline for new arrivals.
+
+We looked to explore the social determinants of homelessness in Chicago. We sought to better understand the demographics of the homeless population, where people experiencing homelessness are concentrated whether it be near resources or where there is a lack of resources. The key resources related to social determinants for the purposes of our project are grocery stores and mental health clinics. The concentration of grocery stores is an adequate indicator of overall resource concentration within a given Chicago community. Additionally, due to the pervasive narrative of drug use as intertwined with people experiencing homelessness we explored the geographic relationship between high-opioid use and high concentrations of people experiencing homelessness.
+
+The migrant crisis and specifically the shelter eviction policy continues to drastically change the face of homelessness in Chicago. While the Point-in-Time Survey considered migrants in their 2023 totals, there is much to learn regarding how many migrants are experiencing homelessness and their access to resources. Using text analysis and regression modeling, we set-out to predict how many migrants would arrive in Chicago.
+
+# Overall Methodological Approach #
+## Assessing Homelessness: ##
+We assumed the Point-in-Time Survey’s (PIT) definition of homelessness which includes individuals and families who lack a fixed, regular, and adequate nighttime residence. This does not include people at imminent risk of losing housing or those who are staying with friends or family. In lieu of counts of people experiencing homelessness across geographic areas, we leveraged the PIT survey methodology. Locations PIT had high response rates could presumably correlate to high-density areas of people experiencing homelessness. The data was presented via map in a pdf and thus the research team assembled the data by hand.
+
+## Equity, Homelessness, and Resources ##
+
+Data sources include: Equity map shapefile from Chicago Data Portal, mental health resource locations and languages available from Chicago Data Portal, grocery store locations from the Chicago Data Portal, ACS, and the 2023 Point-in-Time Survey Count from the City of Chicago
+
+This analysis focused on equity regions which are areas in the city where the mayor’s office has designated key investment areas in reducing Chicago’s racial and health inequity gaps. Data from the Chicago Data Portal on the presence of mental health clinics and grocery stores was tied to community areas. The research team aggregated the number of resources by community area. The analysis resulted in a series of layered maps including variations of equity region, mental health resources, grocery stores, and identified high-density areas of homelessness. The visual depiction provided insight into where people experiencing homelessness are most likely to cluster.
+
+Additionally, the research team used the estimated foreign born population from the Census and the languages of available mental health services from the Chicago Data Portal so see if non-English mental health resources are located where there is the highest need. This is particularly important as we consider the number of Spanish speaking new arrivals.
+
+## Opioid Use and Homelessness ##
+
+Data sources include: Zip Code shape file from the Census, Illinois Department of Public Health Opioid Dashboard, Point-in-Time Survey Count 2022 and 2023, ACS
+
+The IDPH Opioid Dashboard allowed users to export data of interest into excel. This data was in the form of overdose count by zip code by year. The research team used ACS population data to convert the overdose counts into rates by 10,000 people by year by ZIP. Then, we plotted these rates along with the PIT homelessness density points in order to assess any correlation between opioid use and homelessness.
+
+## Text Analysis + Regression Modeling ##
+
+Data sources include: Announcements from Governor Abbott since March 2021 (2000+), City of Chicago New Comer Dashboard
+
+The research team produced a web crawler that scraped every announcement from the Texas Governor over the past three-years. Then, they filtered the thousands of announcements for the phrase “Operation Lone Star”, the designated name for Texas’ operation of sending migrants to sanctuary cities. In order to assess the number of new arrivals sent to key cities, we created a database of the number of new arrivals Texas claimed they sent to each city.
+
+Next, the team wanted to identify changes over time in the sentiment of announcements referring to Operation Lone Star. We calculated summary statistics of the sentiment over time using Afinn and plotted those trajectories. Additionally, the team built two time-series regression models to determine if any of the factors we extracted could be used to predict incoming new arrivals for the future. We elaborated two simple time series OLS models using the log value of Abbott’s announcements as independent variables and the actual count of Chicago Newcomers as a dependent variable. Our models are:
+
+$$
+\text{New Arrival} = \text{Abbot} + \text{Sent} + \text{Var\_Abbot} + \text{Date}
+$$
+
+$$
+\text{New\_Arrival} = \text{Abbot} + \text{Sent} + \text{Var\_Abbot} + \text{Date} + \log(\text{New Arrivals})
+$$
+Where New Arrival is the cumulative amount of newcomer the city of chicago reported for a certain date, Abbot is the amount of migrants Gov. Abbot sent to Chicago of a certain date, Sent is the Affin score of the article of the certain date, Var is the variation between Gob. Abbot announcements and Lag(New Arrivals) is the lag of new arrivals the chicago recorded.
+
+
+# Challenges #
+
+## Unavailability of comprehensive/complete outcome variable data ##
+
+While the Point in Time (PIT) Survey is referenced as Chicago’s primary mechanism for identifying the number of unhoused individuals in the city, our project team quickly discovered flaws in the data it generated. For example, the report’s definition of ‘homelessness’ excludes individuals experiencing housing instability, particularly those who will imminently lose housing. It also excludes individuals seeking temporary shelter with friends or family, and thus vastly undercounts the total number of people experiencing homelessness. While addressing this definitional data gap is outside the scope of our project, we made an effort to caveat the limitations of our analyses when documenting and disseminating our results. The survey also fails to comprehensively document the presence of encampments throughout the city, thus leaving us without the information we needed to conduct our spatial analyses as planned. In the absence of a full list of encampments disaggregated by community area, we used the areas that the PIT survey identified as having high response rates as a proxy for areas with a higher density of unhoused individuals throughout the city. This method is inherently biased, as it relies on the survey team’s implementation fidelity and was not produced via a systematic documentation of encampments. 
+
+## Data sourced from various geographies ##
+
+Given that our analyses pulled from several data sources, it took a substantial amount of effort to standardize and aggregate the geospatial information we leveraged to create many of our plots and visualizations. While we could map varying geospatial designations together i.e., equity region, zip code, and community area, it was not feasible to conduct regression analyses with geography as a dependent variable across geographies.
+
+## Social determinants of homelessness are vast and complex ##
+
+Given the limited scope of our project, we quickly came to the conclusion that we would not be able to comprehensively identify or incorporate all social determinants of homelessness in Chicago. Thus, we narrowed our scope to focus on key variables that could act as drivers of losing housing, or that could affect where individuals chose to congregate in the city once they became unhoused (opioid use, access to grocery stores, access to mental health clinics, language availability of services, etc.). Incorporating data on the influx of migrants to the city helped us further contextualize our characterization of the city’s unhoused population and consider whether Chicago is sufficiently capacitated to absorb a group of individuals who may be at high risk of becoming unhoused.
+
+## Reliance on timeliness of announcements and accurate recording for determining number of incoming migrants  ## 
+
+When aggregating the number of migrants being sent from Texas to Chicago, we realized that the completeness of our data was tied to the frequency at which Governor Abbot’s office releases ‘Operation Lone Star’ announcements. If press releases are not published in a timely manner, we have a limited ability to accurately reflect the number of individuals being sent to Chicago at a given time. Additionally, just as Governor Abbot’s office is inconsistent with publishing data regarding outgoing migrants, Mayor Johnson’s team does not consistently report the number of migrants who arrive in the city. Thus, our analyses are constrained by the erratic nature by which this information becomes available. Due to this our datadraw minimizes from ~400 observations to 110. Further temporal disaggregation (like a weekly separation) seemed like a possible next step yet beyond the scope of this project.
+
+# Results and Conclusions  #
+
+##  Demographic analysis  ## 
+
+Though the PIT survey methodology isn’t perfect, it does have a key strength - data is collected longitudinally, which means that we can track key trends in the unhoused population over time (dating all the way back to 2005 for most indicators). Some high-level takeaways are as follows:
+
+- The majority of unhoused individuals fall between the ages of 35 and 44 years
+- In 2013, the number of unhoused minors (< 18 yrs) dropped drastically to below 5%, when the average for other years hovers around 20%.
+- Though Black residents only make up 29% of Chicago's overall population, they compromise between 70 and 80% of the unhoused population in Chicago, and this trend has remained constant dating back to 2005.
+- The most common reason that individuals report losing their housing is due to family disputes, which is informative from a policy response perspective.
+- The total veteran population peaked around 2013 and has been consistently declining ever since.
+
+##  Opioid analysis ##
+
+From 2020 to 2022, we observed an increase in concentrations of people experiencing homelessness on the Southside of the city and at O’Hare Airport as well as a decrease on the Northside. Opioid overdose rates stayed fairly concentrated over the course of the three year period; however, rates improved in areas that started with the highest rates of overdose per 10,000 people i.e., Austin and Garfield Park area. Overdose count was not reported for the Loop which is a high density area for people experiencing homelessness. Due to data limitations such as poor encampment data and narrow definition of homelessness, we are hesitant to make claims regarding opioid use as it relates to unhoused populations. We suggest that opioid use is more correlated with socioeconomic demographics in Chicago. Given the level of segregation in Chicago, the identified high-opioid use areas reveal disparities across race and ethnicity. 
+
+## Spatial correlation analysis (grocery stores + mental health clinics) ## 
+
+From our grocery store map, we can conclude that the fewest number of stores are concentrated in the Far South and Near South Equity Zones, and there is also a pattern of encampments being located where grocery stores are more highly concentrated - this is especially true for encampments in the Northern equity zones. This implies that people congregate where food resources are available. Regarding distribution of mental health clinics throughout the city, there is less of a clear pattern to be identified when it comes to encampments; clinics are relatively sparse in the Northern equity zones where encampments are clustered. This could imply that proximity to mental health clinics is less of a priority when it comes to selecting encampment locations. 
+
+## Resource availability (languages served) ##
+
+After creating a map to display the spatial distribution and language diversity of mental health facilities in the city, we can conclude that there are relatively few community areas with extremely high concentrations of foreign born individuals (3000-4000), but that relatively few community areas have 0 residents born outside the US. The map also reveals that mental health facilities provide services in over 30 non-English languages. Importantly, the research team was able to identify over 150 locations serving Spanish-speaking residents, which could have implications for the ease with which migrant populations can start utilizing municipal resources upon their arrival. 
+
+## Sentiment analysis (Operation Lone Star announcements)  ##
+
+Our sentiment analysis exercise demonstrates that the overall sentiment of Operation Lone Star announcements is negative. This finding is unsurprising, given the harmful rhetoric leveraged by Governor Abbott when it comes to discussing the migrant crisis, we can also notice that announcements became more negative with time. 
+
+## Time series regression analysis (using sentiment scores to predict new arrivals) ##
+
+In the static plots used to visualize the migrant count over time by major US city, we see that Chicago and New York report the highest number of arrivals. Overall, the volatility of this plot is notable; arrival counts are not consistent over time.Even when attempting to control for temporal effects by using log values the erratic behavior seems consistent.
+
+In general, our regression results only showed statistically significant to date and the lag of new arrivals showing positive impact into the amount the actually arrives to Chicago, telling us that even if we could not infer any predictability form Gov. Abbott’s announcement it safe to say as time goes by it is likely more migrants are to arrive and that the previous amount that arrived before is a good indication of what amount will arrive next.
+
+# Areas to Explore in Further Research #
+
+## Partner with local nonprofits to gain access to more complete encampment/count data ##
+
+As previously stated, one of the key challenges we faced throughout this project was finding ways to work around the low quality of encampment data and narrow definition of homelessness that the Point in Time Survey offers. As a next step, we could reach out to local nongovernmental organizations, such as the Chicago Coalition for the Homeless, to assess how possible it would be to gain access to their programmatic data with the goal of improving the completeness and accuracy of the data we used to derive unhoused population totals and spatial distribution of encampments.
+
+## Incorporate housing availability + affordability variables ##
+
+More time permitted, we would have incorporated key variables summarizing the status of housing affordability and availability into our analyses. The next phase of this work should leverage Chicago Data Portal indicators, including the number of affordable rental housing developments and number of affordable housing units by community area, to conduct additional spatial analyses and explore whether there is a causal relationship between housing prices/availability and the number of unhoused individuals in the city, over time. 
+
+##  Assess unhoused and migrant use of existing municipal resources ##
+
+There are additional data sources we could use to check the utilization of existing resources intended to serve the unhoused population in Chicago; for example, we could assess the number of shelter beds used, or the number of mental/physical health clinic visits completed. It would then be helpful to disaggregate these totals by migrant status to determine a.) whether resources allocated by the city are currently meeting demand and b.) if the influx of migrants from Texas and other locations is creating demand for additional resources. We could also conduct a targeted analysis exercise to explore differences in need between migrant populations and the existing unhoused population in the city.
