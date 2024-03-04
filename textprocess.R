@@ -1,5 +1,4 @@
 ##Text Processing##
-
 library(tidytext)
 library(textdata)
 library(tidyverse)
@@ -8,14 +7,10 @@ library(udpipe)
 library(SnowballC)
 library(rvest)
 library(stargazer)
-
 #The articles were scraped using the script called scrapper, i debated including it here.
 #Since it takes a few minutes to read in every article and it takes a few minutes to run the scrapper i left it seperate
-
 path <- 'C:/Users/steph/Documents/GitHub/R-DATA-2/Housing-and-Migrants-Chicago/text files texas/full data'
 setwd(path)
-
-
 articles <- list()
 parsed_articles <- list()
 
@@ -23,7 +18,7 @@ for (i in 1:108) {
   file_name <- paste0("article_", i, ".html")
   
   # Read HTML content and get the text
-  article_content <- read_html(file_name) %>%
+  article_content <- read_html(file_name) |>
     html_text(trim = TRUE)
   
   # Store the content in the articles list (if you want to keep it)
@@ -44,32 +39,30 @@ for (i in 1:108) {
 combined_parsed_df <- bind_rows(parsed_articles, .id = "article_id")
 
 # Creating the "data" dataframe
-chicago_df <- combined_parsed_df %>% 
-  mutate(article_id = as.numeric(article_id)) %>% 
-  filter(str_detect(sentence, regex("Chicago", ignore_case = TRUE))) %>%
-  filter(upos %in% c("NUM", "PROPN")) %>% 
+chicago_df <- combined_parsed_df |> 
+  mutate(article_id = as.numeric(article_id)) |> 
+  filter(str_detect(sentence, regex("Chicago", ignore_case = TRUE))) |>
+  filter(upos %in% c("NUM", "PROPN")) |> 
   select(article_id,token)
 
 ##From here I wrote it and had to manualy filter it
 ##since it had a lot of noise that i was not able to clean easily inside R, 
 ##since some new report refered to DC as the nations capital or other particularities
-
-
 ## Sentiment Analysis
 
-sentiment_afinn <- get_sentiments("afinn") %>% 
+sentiment_afinn <- get_sentiments("afinn") |> 
   rename(afinn = value)
 
 combined_parsed_df <- anti_join(combined_parsed_df, stop_words, by = c("lemma" = "word"))
 
 texas_feelings <- left_join(combined_parsed_df, sentiment_afinn, by = c("lemma" = "word"))
 
-texas_feelings <- texas_feelings %>% 
+texas_feelings <- texas_feelings |> 
   filter(!is.na(afinn))
 
-overall_texas_feelings <- texas_feelings %>%
-  mutate(article_id = as.numeric(article_id)) %>% 
-  group_by(article_id) %>%
+overall_texas_feelings <- texas_feelings |>
+  mutate(article_id = as.numeric(article_id)) |> 
+  group_by(article_id) |>
   summarise(mean_afinn = mean(afinn, na.rm=TRUE),
             median_affin = median(afinn, na.rm=TRUE),
             sd_afinn = sd(afinn, na.rm = TRUE),
@@ -78,7 +71,7 @@ overall_texas_feelings <- texas_feelings %>%
 
 ##I wrote overall_texas_feelings from here##
 
-overall_texas_feelings %>%
+overall_texas_feelings |>
   ggplot(aes(x = desc(article_id), y = mean_afinn)) +
   geom_line(color = "#00BFC4", size = 1) +  # Line for sentiment scores
   geom_point(color = "#F8766D", size = 2, alpha = 0.8) +  # Points for individual data
