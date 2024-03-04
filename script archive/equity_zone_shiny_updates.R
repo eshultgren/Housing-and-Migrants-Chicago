@@ -102,7 +102,7 @@ write.csv(plot_data, file = file_path, row.names = FALSE)
 
 write.csv(unhoused_locations_sf, file = file_path, row.names = FALSE)
 
-write.csv(equity_zone_shiny , file = , row.names = FALSE)
+write.csv(equity_zone__sf, file = , row.names = FALSE)
 
 # FIRST MAP: EQUITY ZONES
 # Simple map that shows equity zone distribution 
