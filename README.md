@@ -27,7 +27,7 @@ This code calls in all of the announcements from Governor Abbott from March 2021
 
 Lone Star Announcements are grouped by month and year. Next, the code creates plots presenting the announced number of new arrivals sent to key cities of interest each month.
 
-The regression starting on line 80 assesses if sentiment is correlated with time of announcement.
+The regression starting on line 80 assesses if the amount reported by abbot, the sentiment of articles, the percent change between announcements, the passage of time or the lag amount affect actual count in Chicago
 
 #4. Run shiny.R #
 
