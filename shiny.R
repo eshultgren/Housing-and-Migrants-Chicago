@@ -1,12 +1,5 @@
 ##Shiny##
 
-# The purpose of this script is to consolidate the discrete Shiny applications 
-# built by individual members of our project team. Individual Shiny app code can be found
-# in the script_archive folder. This script produces a single app with multiple interactive tabs
-# displaying the following content: opioid overdose rates, spatial distribution of grocery 
-# stores/mental health clinics in relation to concentration of unhoused individuals, and 
-# overall sentiment of our scraped articles. 
-
 library(tidyverse)
 library(shiny)
 library(sf)
